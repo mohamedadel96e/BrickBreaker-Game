@@ -11,16 +11,13 @@ import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
-import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.robot.Robot;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -31,10 +28,7 @@ public class HelloController implements Initializable {
     private AnchorPane scene;
 
     @FXML
-    private Circle circle;
-
-    @FXML
-    private ImageView imageView;
+    private Ball ball;
 
     @FXML
     private Rectangle paddle;
@@ -49,10 +43,10 @@ public class HelloController implements Initializable {
 
     Robot robot = new Robot();
 
-    private ArrayList<Rectangle> bricks = new ArrayList<>();
+    private ArrayList<Brick> bricks = new ArrayList<>();
 
     double deltaX = -1;
-    double deltaY = -3;
+    double deltaY = -1;
 
     //1 Frame evey 10 millis, which means 100 FPS
     Timeline timeline = new Timeline(new KeyFrame(Duration.millis(10), new EventHandler<ActionEvent>() {
@@ -60,8 +54,8 @@ public class HelloController implements Initializable {
         public void handle(ActionEvent actionEvent) {
             movePaddle();
             checkCollisionPaddle(paddle);
-            circle.setLayoutX(circle.getLayoutX() + deltaX);
-            circle.setLayoutY(circle.getLayoutY() + deltaY);
+            ball.setLayoutX(ball.getLayoutX() + deltaX);
+            ball.setLayoutY(ball.getLayoutY() + deltaY);
 
 
 
@@ -74,7 +68,7 @@ public class HelloController implements Initializable {
 
             checkCollisionScene(scene);
             checkCollisionBottomZone();
-            scene.setBackground(Background.fill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\bg.jpg"))));
+
         }
     }));
 
@@ -82,6 +76,9 @@ public class HelloController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         paddle.setWidth(paddleStartSize);
+        paddle.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\block.jpg")));
+        scene.setBackground(Background.fill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\bg.jpg"))));
+        ball.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\ball.png")));
         timeline.setCycleCount(Animation.INDEFINITE);
     }
 
@@ -94,16 +91,15 @@ public class HelloController implements Initializable {
 
     public void startGame(){
         createBricks();
-        circle.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\ball.png")));
         timeline.play();
     }
 
     public void checkCollisionScene(Node node){
         Bounds bounds = node.getBoundsInLocal();
-        boolean rightBorder = circle.getLayoutX() >= (bounds.getMaxX() - circle.getRadius());
-        boolean leftBorder = circle.getLayoutX() <= (bounds.getMinX() + circle.getRadius());
-        boolean bottomBorder = circle.getLayoutY() >= (bounds.getMaxY() - circle.getRadius());
-        boolean topBorder = circle.getLayoutY() <= (bounds.getMinY() + circle.getRadius());
+        boolean rightBorder = ball.getLayoutX() >= (bounds.getMaxX() - ball.getRadius());
+        boolean leftBorder = ball.getLayoutX() <= (bounds.getMinX() + ball.getRadius());
+        boolean bottomBorder = ball.getLayoutY() >= (bounds.getMaxY() - ball.getRadius());
+        boolean topBorder = ball.getLayoutY() <= (bounds.getMinY() + ball.getRadius());
 
         if (rightBorder || leftBorder) {
             deltaX *= -1;
@@ -114,23 +110,29 @@ public class HelloController implements Initializable {
     }
 
 
-    public boolean checkCollisionBrick(Rectangle brick){
+    public boolean checkCollisionBrick(Brick brick){
 
-        if(circle.getBoundsInParent().intersects(brick.getBoundsInParent())){
-            boolean rightBorder = circle.getLayoutX() >= ((brick.getX() + brick.getWidth()) - circle.getRadius());
-            boolean leftBorder = circle.getLayoutX() <= (brick.getX() + circle.getRadius());
-            boolean bottomBorder = circle.getLayoutY() >= ((brick.getY() + brick.getHeight()) - circle.getRadius());
-            boolean topBorder = circle.getLayoutY() <= (brick.getY() + circle.getRadius());
+        if(ball.getBoundsInParent().intersects(brick.getBoundsInParent())){
+            boolean rightBorder = ball.getCenterX() >= brick.getX() - brick.getWidth() / 2 - ball.getRadius() ;
+            boolean leftBorder = ball.getCenterX() <= brick.getX() + brick.getWidth() / 2 + ball.getRadius() ;
+            boolean bottomBorder = ball.getCenterY() >= brick.getY() + brick.getHeight() / 2 + ball.getRadius() ;
+            boolean topBorder = ball.getCenterY() <= brick.getY() - brick.getHeight() / 2 - ball.getRadius() ;
+            /*boolean bottomLeft ;
+            boolean bottomRight;
+            boolean topLeft;
+            boolean topRight;*/
 
-            if(rightBorder || leftBorder)
+            if(bottomBorder || topBorder) {
+                deltaY *= -1;
+            }
+            else if(rightBorder || leftBorder)
             {
                 deltaX *= -1;
             }
-            if (bottomBorder || topBorder) {
-                deltaY *= -1;
-            }
 
-            paddle.setWidth(paddle.getWidth() - (0.1 * paddle.getWidth()));
+
+
+            paddle.setWidth(paddle.getWidth() - (0.05 * paddle.getWidth()));
             scene.getChildren().remove(brick);
 
             return true;
@@ -148,10 +150,10 @@ public class HelloController implements Initializable {
         for (double i = height; i > 0 ; i = i - 50) {
             for (double j = width; j > 0 ; j = j - 25) {
                 if(spaceCheck % 2 == 0){
-                    Rectangle rectangle = new Rectangle(j,i,30,30);
-                    rectangle.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\c1.png")));
-                    scene.getChildren().add(rectangle);
-                    bricks.add(rectangle);
+                    Brick brick = new Brick(j,i,30,30);
+                    brick.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\c1.png")));
+                    scene.getChildren().add(brick);
+                    bricks.add(brick);
                 }
                 spaceCheck++;
             }
@@ -176,12 +178,12 @@ public class HelloController implements Initializable {
 
     public void checkCollisionPaddle(Rectangle paddle){
 
-        if(circle.getBoundsInParent().intersects(paddle.getBoundsInParent())){
+        if(ball.getBoundsInParent().intersects(paddle.getBoundsInParent())){
 
-            boolean rightBorder = circle.getLayoutX() >= ((paddle.getLayoutX() + paddle.getWidth()) - circle.getRadius());
-            boolean leftBorder = circle.getLayoutX() <= (paddle.getLayoutX() + circle.getRadius());
-            boolean bottomBorder = circle.getLayoutY() >= ((paddle.getLayoutY() + paddle.getHeight()) - circle.getRadius());
-            boolean topBorder = circle.getLayoutY() <= (paddle.getLayoutY() + circle.getRadius());
+            boolean rightBorder = ball.getLayoutX() >= ((paddle.getLayoutX() + paddle.getWidth()) - ball.getRadius());
+            boolean leftBorder = ball.getLayoutX() <= (paddle.getLayoutX() + ball.getRadius());
+            boolean bottomBorder = ball.getLayoutY() >= ((paddle.getLayoutY() + paddle.getHeight()) - ball.getRadius());
+            boolean topBorder = ball.getLayoutY() <= (paddle.getLayoutY() + ball.getRadius());
 
             if (rightBorder && deltaX < 0) {
                 deltaX *= -1;
@@ -197,7 +199,7 @@ public class HelloController implements Initializable {
     }
 
     public void checkCollisionBottomZone(){
-        if(circle.getBoundsInParent().intersects(bottomZone.getBoundsInParent())){
+        if(ball.getBoundsInParent().intersects(bottomZone.getBoundsInParent())){
             timeline.stop();
             bricks.forEach(brick -> scene.getChildren().remove(brick));
             bricks.clear();
@@ -208,8 +210,8 @@ public class HelloController implements Initializable {
             deltaX = -1;
             deltaY = -3;
 
-            circle.setLayoutX(300);
-            circle.setLayoutY(300);
+            ball.setLayoutX(300);
+            ball.setLayoutY(300);
 
             System.out.println("Game over!");
         }
