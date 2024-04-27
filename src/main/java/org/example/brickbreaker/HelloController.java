@@ -106,7 +106,7 @@ public class HelloController implements Initializable {
         timeline.setCycleCount(Animation.INDEFINITE);
         ball.setLayoutY( paddle.getLayoutY() - 10);
         ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
-        int random = (int) Math.random() % 4;
+        int random = (((int) (Math.random() * 100)) %  4);
         if(random >= 2)
         {
             ball.setDeltaX(-1);
@@ -150,17 +150,28 @@ public class HelloController implements Initializable {
 
         if (ball.getBoundsInParent().intersects(brick.getBoundsInParent()) ) {
 
-            boolean bottomBorder = ball.getCenterY() >= brick.getY() + brick.getHeight() / 2 + ball.getRadius() ;
-            boolean topBorder = ball.getCenterY() <= brick.getY() - brick.getHeight() / 2 - ball.getRadius();
-            boolean rightBorder = ball.getCenterX() >= brick.getX() - brick.getWidth() / 2 - ball.getRadius();
-            boolean leftBorder = ball.getCenterX() <= brick.getX() + brick.getWidth() / 2 + ball.getRadius();
+            boolean bottomBorder = ball.getLayoutY() >= ((brick.getY() + brick.getHeight()) - ball.getRadius());
+            boolean topBorder = ball.getLayoutY() <= (brick.getY() + ball.getRadius());
+            boolean rightBorder = ball.getLayoutX() >= ((brick.getX() + brick.getWidth()) - ball.getRadius());
+            boolean leftBorder = ball.getLayoutX() <= (brick.getX() + ball.getRadius());
 
-            if (bottomBorder || topBorder) {
+            /*if(bottomBorder  && ball.getDeltaY() < 0){
+                ball.setDeltaY(ball.getDeltaY() * -1);
+            } else if (topBorder && ball.getDeltaY() > 0) {
                 ball.setDeltaY(ball.getDeltaY() * -1);
             }
-            else if (rightBorder || leftBorder) {
+            else if (rightBorder || leftBorder ) {
+                ball.setDeltaX(ball.getDeltaX() * -1);
+            }*/
+            if (rightBorder || leftBorder && !(topBorder || bottomBorder)) {
                 ball.setDeltaX(ball.getDeltaX() * -1);
             }
+            if (bottomBorder && ball.getDeltaY() < 0) {
+                ball.setDeltaY(ball.getDeltaY() * -1);
+            } else if (topBorder && ball.getDeltaY() > 0) {
+                ball.setDeltaY(ball.getDeltaY() * -1);
+            }
+
             scene.getChildren().remove(brick);
             if(lives == 3)
                 score += 20;
@@ -257,7 +268,7 @@ public class HelloController implements Initializable {
                     paddle.setLayoutX(scene.getWidth() - paddleWidth);
                 }
 
-                if(((int) Math.random() )% 4 >= 2)
+                if((((int) (Math.random() * 100)) %  4) >= 2)
                 {
                     ball.setDeltaX(-1);
                     ball.setDeltaY(-1);
@@ -276,7 +287,7 @@ public class HelloController implements Initializable {
                 lives = 3;
                 paddle.setWidth(paddleStartSize);
                 paddle.setLayoutX(scene.getWidth() / 2  - paddle.getWidth() / 2);
-                int random = (int) Math.random() % 4;
+                int random = ((int) (Math.random() * 100)) %  4;
                 if(random >= 2)
                 {
                     ball.setDeltaX(-1);
@@ -287,8 +298,6 @@ public class HelloController implements Initializable {
                     ball.setDeltaY(1);
                 }
 
-
-
                 ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
                 ball.setLayoutY(paddle.getLayoutY() - 10);
 
@@ -297,5 +306,35 @@ public class HelloController implements Initializable {
 
         }
     }
+
+    /*public static boolean circleAndBox(Ball ball, Brick brick)
+    {
+        double closestPointToCircleX = ball.getCenterX() ;
+        double closestPointToCircleY = ball.getCenterY() ;
+
+        double minX = brick.getX();
+        double minY = brick.getY() + brick.getHeight();
+
+        double maxX = brick.getX() + brick.getWidth();
+        double maxY = brick.getY() ;
+
+        if(closestPointToCircleX < minX ){
+            closestPointToCircleX = minX;
+        } else if (closestPointToCircleX > maxX) {
+            closestPointToCircleX = maxX;
+        }
+        if(closestPointToCircleY > minY ){
+
+            closestPointToCircleY = minY;
+        } else if (closestPointToCircleY < maxY) {
+            closestPointToCircleY = maxY;
+        }
+
+        double circleToBoxX = (ball.getCenterX()) - closestPointToCircleX;
+        double circleToBoxY = (ball.getCenterY()) - closestPointToCircleY;
+
+        return (circleToBoxX * circleToBoxX + circleToBoxY * circleToBoxY) <= ball.getRadius() * ball.getRadius();
+
+    }*/
 
 }
