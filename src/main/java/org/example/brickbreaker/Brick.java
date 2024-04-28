@@ -9,6 +9,8 @@ public class Brick  extends Rectangle {
     }
     private boolean crashed;
 
+    int numOfCrash = 1;
+
     public boolean isCrashed() {
         return crashed;
     }
