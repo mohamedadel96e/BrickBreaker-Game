@@ -118,10 +118,9 @@ public class HelloController implements Initializable {
         ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
         lblScore.setText("SCORE: " + score);
         lblScore.setLayoutX(root.getPrefWidth() - 100);
-        lblScore.setFont(Font.font("Elephant"));
+        lblScore.setFont(Font.font("Elephant",12));
         lblScore.setTextFill(Color.BLACK);
         lblScore.setLayoutY(10);
-
         lblScore.setBackground(Background.fill(Color.WHITE));
         root.getChildren().add(lblScore);
         drawLives(lives);
@@ -182,25 +181,7 @@ public class HelloController implements Initializable {
             else if (rightBorder || leftBorder ) {
                 ball.setDeltaX(ball.getDeltaX() * -1);
             }*/
-            if (rightBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() < 0) {
-                ball.setDeltaX(ball.getDeltaX() * -1);
-            } else if (leftBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() > 0) {
-                ball.setDeltaX(ball.getDeltaX() * -1);
-            }
-            if (rightBorder  && (topBorder || bottomBorder) && ball.getDeltaX() < 0) {
-                ball.setDeltaX(ball.getDeltaX() * -1);
-                ball.setDeltaY(ball.getDeltaY() * -1);
-            } else if (leftBorder  && (topBorder || bottomBorder) && ball.getDeltaX() > 0) {
-                ball.setDeltaX(ball.getDeltaX() * -1);
-                ball.setDeltaY(ball.getDeltaY() * -1);
-            }
-            if (bottomBorder && ball.getDeltaY() < 0) {
-                ball.setDeltaY(ball.getDeltaY() * -1);
-            } else if (topBorder && ball.getDeltaY() > 0) {
-                ball.setDeltaY(ball.getDeltaY() * -1);
-            }
-
-            root.getChildren().remove(brick);
+            checkBorders(rightBorder, leftBorder, bottomBorder, topBorder);
             if(numOfLives.size() == 3)
                 score += 200;
             if(numOfLives.size() == 2)
@@ -208,37 +189,56 @@ public class HelloController implements Initializable {
             if(numOfLives.size() == 1)
                 score += 700;
             lblScore.setText("SCORE: " + score);
+            brick.setCrashed(true);
+            brick.setNumOfCrashes(brick.getNumOfCrashes() - 1);
 
 
-            return true;
+            if(brick.getNumOfCrashes() <= 0)
+            {
+                root.getChildren().remove(brick);
+                return true;
+            }
+            else
+                return false;
         }
         return false;
     }
     public void createBricks() {
         double width = root.getScene().getWidth() - 20;
-        double height = root.getScene().getHeight() * 0.5;
+        double height = root.getScene().getHeight() * 0.6;
+        double brickWidth = width / 10;
+        double brickHeight = brickWidth * 0.5 ;
+        Brick brick;
         level = "One";
-        int spaceCheck = 1;
+        int spaceCheckX = 1;
+        int spaceCheckY = 1;
         switch (level)
         {
             case "One":
-                for (double i = height; i > 0; i = i - 50) {
-                    for (double j = width; j > 0; j = j - 30) {
-                        if (spaceCheck % 2 == 0) {
-                            Brick brick = new Brick(j, i, 40, 20);
-                            brick.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\93.jpg")));
-                            root.getChildren().add(brick);
-                            bricks.add(brick);
+                int count = 0;
+                for (double i = height; i > lblScore.getLayoutY() + lblScore.getHeight() * 1.5; i = i - brickHeight * 0.8 ) {
+                    if(spaceCheckY % 2 == 0) {
+                        count++;
+                        for (double j = width - 10; j > 0; j = j - brickWidth + 25) {
+                            if (spaceCheckX % 2 == 0) {
+                                brick = switch (count) {
+                                    case 1 -> new Brick(j, i, brickWidth, brickHeight, 1);
+                                    case 2 -> new Brick(j, i, brickWidth, brickHeight, 2);
+                                    default -> new Brick(j, i, brickWidth, brickHeight, random1To3());
+                                };
+                                root.getChildren().add(brick);
+                                bricks.add(brick);
+                            }
+                            spaceCheckX++;
                         }
-                        spaceCheck++;
                     }
+                    spaceCheckY++;
                 }
                 break;
             case "Two":
                 break;
         }
     }
-
     public void movePaddle() {
         Bounds bounds = root.localToScreen(root.getBoundsInLocal());
         double sceneXPos = bounds.getMinX();
@@ -264,7 +264,7 @@ public class HelloController implements Initializable {
             boolean bottomBorder = ball.getLayoutY() >= ((paddle.getLayoutY() + paddle.getHeight()) - ball.getRadius());
             boolean topBorder = ball.getLayoutY() <= (paddle.getLayoutY() + ball.getRadius());
 
-            if (rightBorder && ball.getDeltaX() < 0) {
+            /*if (rightBorder  && ball.getDeltaX() < 0) {
                 ball.setDeltaX(ball.getDeltaX() * -1);
             }
             if (leftBorder && (ball.getDeltaX() > 0)) {
@@ -272,7 +272,29 @@ public class HelloController implements Initializable {
             }
             if (bottomBorder || topBorder) {
                 ball.setDeltaY(ball.getDeltaY() * -1);
-            }
+            }*/
+
+            checkBorders(rightBorder, leftBorder, bottomBorder, topBorder);
+        }
+    }
+
+    private void checkBorders(boolean rightBorder, boolean leftBorder, boolean bottomBorder, boolean topBorder) {
+        if (rightBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() < 0) {
+            ball.setDeltaX(ball.getDeltaX() * -1);
+        } else if (leftBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() > 0) {
+            ball.setDeltaX(ball.getDeltaX() * -1);
+        }
+        if (rightBorder  && (topBorder || bottomBorder) && ball.getDeltaX() < 0) {
+            ball.setDeltaX(ball.getDeltaX() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);
+        } else if (leftBorder  && (topBorder || bottomBorder) && ball.getDeltaX() > 0) {
+            ball.setDeltaX(ball.getDeltaX() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);
+        }
+        if (bottomBorder && ball.getDeltaY() < 0) {
+            ball.setDeltaY(ball.getDeltaY() * -1);
+        } else if (topBorder && ball.getDeltaY() > 0) {
+            ball.setDeltaY(ball.getDeltaY() * -1);
         }
     }
 
@@ -353,5 +375,9 @@ public class HelloController implements Initializable {
             root.getChildren().add(numOfLives.get(i));
 
         }
+    }
+    private int random1To3()
+    {
+        return (((int)(Math.random() * 100)) % 3) + 1;
     }
 }
