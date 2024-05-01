@@ -1,8 +1,10 @@
 package org.example.brickbreaker;
 
+import javafx.animation.FadeTransition;
 import javafx.scene.image.Image;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
 public class Brick  extends Rectangle {
 
@@ -14,11 +16,22 @@ public class Brick  extends Rectangle {
         return crashed;
     }
 
+    public Brick(double width,double height,int numOfCrashes)
+    {
+        this.setWidth(width);
+        this.setHeight(height);
+        setNumOfCrashes(numOfCrashes);
+
+    }
+
     public void setCrashed(boolean crashed) {
 
         this.crashed = crashed;
     }
+    public Brick()
+    {
 
+    }
     public Brick(double x, double y, double width, double height,int numOfCrashes)
     {
         super(x,y,width,height);
