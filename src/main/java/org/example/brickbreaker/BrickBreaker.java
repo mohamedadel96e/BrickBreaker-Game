@@ -6,12 +6,10 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -142,12 +140,6 @@ public class BrickBreaker extends Application  {
     {
         outerRoot.setPrefWidth(1080);
         outerRoot.setPrefHeight(720);
-        innerRoot.setLayoutY(outerRoot.getPrefHeight() * 0.06);
-        innerRoot.setLayoutX(10);
-        innerRoot.setPrefHeight(outerRoot.getPrefHeight() * 0.8);
-        innerRoot.setMaxHeight(outerRoot.getPrefHeight() * 0.8);
-        innerRoot.setPrefWidth(outerRoot.getPrefWidth() - 20);
-        innerRoot.setMaxWidth(outerRoot.getPrefWidth() - 20);
         paddle.setWidth(paddleStartSize);
         paddle.setArcWidth(5);
         paddle.setArcHeight(5);
@@ -177,17 +169,17 @@ public class BrickBreaker extends Application  {
         startButton.setPrefHeight(50);
         startButton.setLayoutX(outerRoot.getPrefWidth() / 2 - startButton.getPrefWidth());
         startButton.setLayoutY((outerRoot.getPrefHeight() / 2) - startButton.getPrefHeight());
-        outerRoot.getChildren().addAll(innerRoot,paddle,ball,lblScore,bottomZone,startButton);
+        outerRoot.getChildren().addAll(paddle,ball,lblScore,bottomZone,startButton);
         drawLives(lives);
         int random = (((int) (Math.random() * 100)) %  4);
         if(random >= 2)
         {
-            ball.setDeltaX(-1);
-            ball.setDeltaY(-1);
+            ball.setDeltaX(-2);
+            ball.setDeltaY(-2);
         }
         else {
-            ball.setDeltaX(1);
-            ball.setDeltaY(-1);
+            ball.setDeltaX(2);
+            ball.setDeltaY(-2);
         }
 
     }
@@ -226,21 +218,21 @@ public class BrickBreaker extends Application  {
     }
     private void checkBorders(boolean rightBorder, boolean leftBorder, boolean bottomBorder, boolean topBorder) {
         if (rightBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() < 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1);
+            ball.setDeltaX(ball.getDeltaX() * -1.02);
         } else if (leftBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() > 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1);
+            ball.setDeltaX(ball.getDeltaX() * -1.02);
         }
         if (rightBorder  && (topBorder || bottomBorder) && ball.getDeltaX() < 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1);
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaX(ball.getDeltaX() * -1.02);
+            ball.setDeltaY(ball.getDeltaY() * -1.02);
         } else if (leftBorder  && (topBorder || bottomBorder) && ball.getDeltaX() > 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1);
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaX(ball.getDeltaX() * -1.02);
+            ball.setDeltaY(ball.getDeltaY() * -1.02);
         }
         if (bottomBorder && ball.getDeltaY() < 0) {
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1.02);
         } else if (topBorder && ball.getDeltaY() > 0) {
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1.02);
         }
     }
     public void checkCollisionPaddle(Rectangle paddle) {
@@ -259,11 +251,10 @@ public class BrickBreaker extends Application  {
     public boolean checkCollisionBrick(Brick brick) {
 
         if (ball.getBoundsInParent().intersects(brick.getBoundsInParent()) ) {
-
-            boolean bottomBorder = ball.getLayoutY() >= ((brick.getY()  + brick.getHeight()) - ball.getRadius() );
-            boolean topBorder = ball.getLayoutY() <= (brick.getY()  + ball.getRadius() );
-            boolean rightBorder = ball.getLayoutX() >= ((brick.getX()  - brick.getWidth()) + ball.getRadius()  + 20);
-            boolean leftBorder = ball.getLayoutX() <= (brick.getX()  + ball.getRadius() + 10);
+            boolean rightBorder = ball.getLayoutX() >= ((brick.getX() + brick.getWidth()) - ball.getRadius());
+            boolean leftBorder = ball.getLayoutX() <= (brick.getX() + ball.getRadius());
+            boolean bottomBorder = ball.getLayoutY() >= ((brick.getY() + brick.getHeight()) - ball.getRadius());
+            boolean topBorder = ball.getLayoutY() <= (brick.getY() + ball.getRadius());
             checkBorders(rightBorder, leftBorder, bottomBorder, topBorder);
             if(numOfLives.size() == 3)
                 score += 200;
@@ -275,10 +266,9 @@ public class BrickBreaker extends Application  {
             brick.setCrashed(true);
             brick.setNumOfCrashes(brick.getNumOfCrashes() - 1);
 
-
             if(brick.getNumOfCrashes() <= 0)
             {
-                innerRoot.getChildren().remove(brick);
+                outerRoot.getChildren().remove(brick);
                 return true;
             }
             else
@@ -327,12 +317,12 @@ public class BrickBreaker extends Application  {
 
                 if((((int) (Math.random() * 100)) %  4) >= 2)
                 {
-                    ball.setDeltaX(-1);
-                    ball.setDeltaY(-1);
+                    ball.setDeltaX(-2);
+                    ball.setDeltaY(-2);
                 }
                 else {
-                    ball.setDeltaX(1);
-                    ball.setDeltaY(1);
+                    ball.setDeltaX(2);
+                    ball.setDeltaY(-2);
                 }
             }
             else {
@@ -349,12 +339,12 @@ public class BrickBreaker extends Application  {
                 int random = ((int) (Math.random() * 100)) %  4;
                 if(random >= 2)
                 {
-                    ball.setDeltaX(-1);
-                    ball.setDeltaY(-1);
+                    ball.setDeltaX(-2);
+                    ball.setDeltaY(-2);
                 }
                 else {
-                    ball.setDeltaX(1);
-                    ball.setDeltaY(1);
+                    ball.setDeltaX(2);
+                    ball.setDeltaY(-2);
                 }
 
                 ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
@@ -372,23 +362,39 @@ public class BrickBreaker extends Application  {
     public void createBricks()
     {
         Brick brick;
-
+        double width = outerRoot.getPrefWidth();
+        double height = outerRoot.getPrefHeight();
+        double space = 15;
+        int numOfBricksInRow = 10;
+        int numOfBrickInColumn = 4;
+        double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
+        double brickHeight = brickWidth * 0.5;
+        int columnCount = 0;
         switch (level)
         {
             case "One":
 
-                for(int i = 0; i < 4;i++)
+
+                for(double i = lblScore.getLayoutY() + lblScore.getHeight() * 3; i < height * 0.6;i = i + brickHeight + space)
                 {
-                    for(int j = 0; j < 20;j++)
+                    if(columnCount >= numOfBrickInColumn)
                     {
-                        brick = switch (i) {
-                            case 3-> new Brick((innerRoot.getPrefWidth() - 20 * 15) / 20,innerRoot.getPrefWidth()  /40 ,1);
-                            case 2 -> new Brick((innerRoot.getPrefWidth() - 20 * 15) / 20,innerRoot.getPrefWidth()  /40 ,2);
-                            default -> new Brick((innerRoot.getPrefWidth() - 20 * 15) / 20,innerRoot.getPrefWidth()  / 40,random1To3());
-                        };
-                        innerRoot.add(brick,j,i);
-                        bricks.add(brick);
+                        break;
                     }
+                        for (double j = 10; j < width - 10; j = j + brickWidth + space) {
+
+                                brick = switch (columnCount) {
+                                    case 3 ->
+                                            new Brick(j, i, brickWidth, brickHeight, 1);
+                                    case 2 ->
+                                            new Brick(j, i, brickWidth, brickHeight, 2);
+                                    default ->
+                                            new Brick(j, i, brickWidth, brickHeight, random1To3());
+                                };
+                                outerRoot.getChildren().add(brick);
+                                bricks.add(brick);
+                        }
+                        columnCount++;
                 }
             case "Two":
                 break;

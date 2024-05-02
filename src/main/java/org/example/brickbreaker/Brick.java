@@ -12,17 +12,12 @@ public class Brick  extends Rectangle {
 
     int numOfCrashes = 1;
 
+
+
     public boolean isCrashed() {
         return crashed;
     }
 
-    public Brick(double width,double height,int numOfCrashes)
-    {
-        this.setWidth(width);
-        this.setHeight(height);
-        setNumOfCrashes(numOfCrashes);
-
-    }
 
     public void setCrashed(boolean crashed) {
 
