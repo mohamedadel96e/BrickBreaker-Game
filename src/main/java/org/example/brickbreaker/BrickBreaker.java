@@ -2,9 +2,12 @@ package org.example.brickbreaker;
 
 import javafx.animation.*;
 import javafx.application.Application;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -12,10 +15,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.robot.Robot;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.scene.text.Font;
@@ -30,21 +35,32 @@ import java.util.ArrayList;
 public class BrickBreaker extends Application  {
 
     Scene introScene ;
+    Button menu = new Button("Menu");
     Scene playingScene;
     Pane outerRoot = new Pane();
-    GridPane innerRoot = new GridPane(15,15);
     Ball ball = new Ball();
+    /*int  ballCounter = 1;*/
+    Ball advancedBall;
+    boolean isAdvancedBallCreated = false;
     Rectangle paddle = new Rectangle();
     Rectangle bottomZone = new Rectangle();
     Button startButton = new Button();
     Button level1 = new Button("level 1");
     Button level2 = new Button("level 2");
     Button level3 = new Button("level 3");
-
+    VBox vbox2 = new VBox();
+    Rectangle rectangle;
+    boolean settingsOn;
+    boolean levelsOn;
+    boolean playFlag = true;
+    boolean soundFlag = false;
+    boolean musicFlag = false;
+    /*ArrayList <Ball> balls = new ArrayList<>();*/
     int lives = 3;
     ArrayList<Rectangle>  numOfLives = new ArrayList<>(3);
 
     int score = 0;
+    int numCrashed = 0;
     String level;
     int paddleStartSize = 150;
     boolean ballIsTouched;
@@ -55,24 +71,58 @@ public class BrickBreaker extends Application  {
         @Override
         public void handle(ActionEvent actionEvent) {
             movePaddle();
+
+            playingScene.setOnKeyPressed(event -> {
+                if(event.getCode().equals(KeyCode.SPACE) )
+                {
+                    if(playFlag){
+                        timeline.pause();
+                        playFlag = !playFlag;
+                        pausePage();
+                    }
+                    else {
+                        outerRoot.getChildren().remove(vbox2);
+                        playFlag = !playFlag;
+                        timeline.play();
+
+                    }
+
+
+                }
+
+            });
             if(!ballIsTouched)
             {
 
                 checkCollisionPaddle(paddle);
                 ball.setLayoutX(ball.getLayoutX() + ball.getDeltaX());
                 ball.setLayoutY(ball.getLayoutY() + ball.getDeltaY());
-
+                /*if(!balls.isEmpty())
+                {
+                    for(int i = 0; i < balls.size(); i++)
+                    {
+                        balls.get(i).setLayoutX(balls.get(i).getLayoutX() + balls.get(i).getDeltaX());
+                        balls.get(i).setLayoutY(balls.get(i).getLayoutY() + balls.get(i).getDeltaY());
+                        checkCollisionBottomZone(balls.get(i));
+                    }
+                }*/
+                if(isAdvancedBallCreated)
+                {
+                    advancedBall.setLayoutY(advancedBall.getLayoutY() + advancedBall.getDeltaY());
+                    checkCollisionPaddle(paddle,advancedBall);
+                    checkCollisionBottomZone1(advancedBall);
+                }
                 if (!bricks.isEmpty()) {
                     bricks.removeIf(brick -> checkCollisionBrick(brick));
-
                 } else {
                     score += 50000 * lives;
                     lblScore.setText("SCORE: " + score);
                     timeline.stop();
                     System.out.println("You won!");
                 }
+
                 checkCollisionScene(outerRoot);
-                checkCollisionBottomZone();
+                checkCollisionBottomZone(ball);
             }
             else{
                 ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth()  / 2);
@@ -88,6 +138,9 @@ public class BrickBreaker extends Application  {
 
     @Override
     public void start(Stage stage) throws Exception {
+
+        stage.setResizable(false);
+
         level1.setOnAction( e ->{
             playingScene = new Scene(outerRoot);
             level = "One";
@@ -130,6 +183,19 @@ public class BrickBreaker extends Application  {
             ft.setOnFinished(event -> stage.setScene(playingScene));
             ft.play();
         });
+        menu.setOnAction(e ->{
+            timeline.stop();
+
+            if(levelsOn)
+            {
+                levelsOn = false;
+            }
+            intro();
+            stage.setScene(introScene);
+            playingScene.setRoot(new Pane());
+            outerRoot = new Pane();
+
+        });
         intro();
         stage.setScene(introScene);
         stage.setTitle("BrickBreaker Game");
@@ -138,6 +204,10 @@ public class BrickBreaker extends Application  {
 
     public void initialize()
     {
+        lives = 3;
+        score = 0;
+        numCrashed = 0;
+        isAdvancedBallCreated = false;
         outerRoot.setPrefWidth(1080);
         outerRoot.setPrefHeight(720);
         paddle.setWidth(paddleStartSize);
@@ -155,7 +225,7 @@ public class BrickBreaker extends Application  {
         outerRoot.setBackground(Background.fill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\71.jpg"))));
         ball.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\ball.png")));
         lblScore.setText("SCORE: " + score);
-        lblScore.setLayoutX(outerRoot.getPrefWidth() - 100);
+        lblScore.setLayoutX(outerRoot.getPrefWidth() - 150);
         lblScore.setLayoutY(10);
         lblScore.setFont(Font.font("Elephant",12));
         lblScore.setTextFill(Color.BLACK);
@@ -164,21 +234,23 @@ public class BrickBreaker extends Application  {
         bottomZone.setLayoutX(0);
         bottomZone.setHeight(20);
         bottomZone.setWidth(outerRoot.getPrefWidth());
+        bottomZone.setFill(Color.TRANSPARENT);
         startButton.setText("a7a");
         startButton.setPrefWidth(50);
         startButton.setPrefHeight(50);
         startButton.setLayoutX(outerRoot.getPrefWidth() / 2 - startButton.getPrefWidth());
         startButton.setLayoutY((outerRoot.getPrefHeight() / 2) - startButton.getPrefHeight());
+        startButton.setVisible(true);
         outerRoot.getChildren().addAll(paddle,ball,lblScore,bottomZone,startButton);
         drawLives(lives);
         int random = (((int) (Math.random() * 100)) %  4);
         if(random >= 2)
         {
-            ball.setDeltaX(-2);
+            ball.setDeltaX(-Math.random() * 2);
             ball.setDeltaY(-2);
         }
         else {
-            ball.setDeltaX(2);
+            ball.setDeltaX(Math.random() * 2);
             ball.setDeltaY(-2);
         }
 
@@ -268,6 +340,11 @@ public class BrickBreaker extends Application  {
 
             if(brick.getNumOfCrashes() <= 0)
             {
+                numCrashed++;
+                if(numCrashed % 5 == 0)
+                {
+                    createAdvancedBall(brick);
+                }
                 outerRoot.getChildren().remove(brick);
                 return true;
             }
@@ -290,18 +367,17 @@ public class BrickBreaker extends Application  {
             ball.setDeltaY(ball.getDeltaY() * -1);
         }
     }
-    public void checkCollisionBottomZone() {
+    public void checkCollisionBottomZone(Ball ball) {
         if (ball.getBoundsInParent().intersects(bottomZone.getBoundsInParent())) {
             lives--;
             outerRoot.getChildren().remove(numOfLives.getLast());
             numOfLives.removeLast();
 
-            if(lives > 0)
-            {
+            if (lives > 0) {
                 ballIsTouched = true;
                 ball.setLayoutX(paddle.getLayoutX());
                 ball.setLayoutY(paddle.getLayoutY());
-
+                outerRoot.getChildren().remove(advancedBall);
                 Bounds bounds = outerRoot.localToScreen(outerRoot.getBoundsInLocal());
                 double sceneXPos = bounds.getMinX();
                 double xPos = robot.getMouseX();
@@ -315,19 +391,17 @@ public class BrickBreaker extends Application  {
                     paddle.setLayoutX(outerRoot.getWidth() - paddleWidth);
                 }
 
-                if((((int) (Math.random() * 100)) %  4) >= 2)
-                {
-                    ball.setDeltaX(-2);
+                if ((((int) (Math.random() * 100)) % 4) >= 2) {
+                    ball.setDeltaX(-Math.random() * 2);
+                    ball.setDeltaY(-2);
+                } else {
+                    ball.setDeltaX(Math.random() * 2);
                     ball.setDeltaY(-2);
                 }
-                else {
-                    ball.setDeltaX(2);
-                    ball.setDeltaY(-2);
-                }
-            }
-            else {
+            } else {
 
                 timeline.stop();
+                outerRoot.getChildren().remove(advancedBall);
                 bricks.forEach(brick -> outerRoot.getChildren().remove(brick));
                 bricks.clear();
                 startButton.setVisible(true);
@@ -335,15 +409,13 @@ public class BrickBreaker extends Application  {
                 lives = 3;
                 drawLives(lives);
                 paddle.setWidth(paddleStartSize);
-                paddle.setLayoutX(outerRoot.getWidth() / 2  - paddle.getWidth() / 2);
-                int random = ((int) (Math.random() * 100)) %  4;
-                if(random >= 2)
-                {
-                    ball.setDeltaX(-2);
+                paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);
+                int random = ((int) (Math.random() * 100)) % 4;
+                if (random >= 2) {
+                    ball.setDeltaX(-Math.random() * 2);
                     ball.setDeltaY(-2);
-                }
-                else {
-                    ball.setDeltaX(2);
+                } else {
+                    ball.setDeltaX(Math.random() * 2);
                     ball.setDeltaY(-2);
                 }
 
@@ -365,7 +437,7 @@ public class BrickBreaker extends Application  {
         double width = outerRoot.getPrefWidth();
         double height = outerRoot.getPrefHeight();
         double space = 15;
-        int numOfBricksInRow = 10;
+        int numOfBricksInRow = 15;
         int numOfBrickInColumn = 4;
         double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
         double brickHeight = brickWidth * 0.5;
@@ -373,7 +445,6 @@ public class BrickBreaker extends Application  {
         switch (level)
         {
             case "One":
-
 
                 for(double i = lblScore.getLayoutY() + lblScore.getHeight() * 3; i < height * 0.6;i = i + brickHeight + space)
                 {
@@ -391,7 +462,10 @@ public class BrickBreaker extends Application  {
                                     default ->
                                             new Brick(j, i, brickWidth, brickHeight, random1To3());
                                 };
+
                                 outerRoot.getChildren().add(brick);
+                                /*rick.layoutXProperty().bind();*/
+                               /* brick.widthProperty().bind(outerRoot.widthProperty().subtract(numOfBricksInRow * space).subtract(10).divide(numOfBricksInRow));*/
                                 bricks.add(brick);
                         }
                         columnCount++;
@@ -409,7 +483,10 @@ public class BrickBreaker extends Application  {
         Button setting = new Button("Setting");
         Button sound = new Button("sound");
         Button music = new Button("Music");
-        Button exit = new Button("Exit");
+        ImageView exitImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\logout.png"));
+        exitImg.fitHeightProperty().bind(setting.prefHeightProperty().multiply(1));
+        exitImg.fitWidthProperty().bind(exitImg.fitHeightProperty());
+        Button exit = new Button("Exit",exitImg);
 
         ImageView settingsImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\setting.png"));
         settingsImg.fitHeightProperty().bind(setting.prefHeightProperty().multiply(1));
@@ -417,6 +494,42 @@ public class BrickBreaker extends Application  {
         ImageView levelsImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\select.png"));
         levelsImg.fitHeightProperty().bind(levels.prefHeightProperty().multiply(1));
         levelsImg.fitWidthProperty().bind(levelsImg.fitHeightProperty());
+
+        ImageView soundImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+        soundImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
+        soundImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
+        ImageView musicImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+        musicImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
+        musicImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
+        sound.setOnAction(e ->{
+            if(soundFlag)
+            {
+                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+                sound.setGraphic(soundImg);
+                soundFlag = !soundFlag;
+            }
+            else{
+                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+                sound.setGraphic(soundImg);
+                soundFlag = !soundFlag;
+            }
+        });
+        sound.setGraphic(soundImg);
+
+        music.setOnAction(e ->{
+            if(musicFlag)
+            {
+                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+                music.setGraphic(musicImg);
+                musicFlag = !musicFlag;
+            }
+            else{
+                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+                music.setGraphic(musicImg);
+                musicFlag = !musicFlag;
+            }
+        });
+        music.setGraphic(musicImg);
 
         levels.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
         setting.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
@@ -434,13 +547,15 @@ public class BrickBreaker extends Application  {
         music.setVisible(false);
 
         levels.setOnAction(event -> {
-            level1.setVisible(true);
-            level2.setVisible(true);
-            level3.setVisible(true);
+            levelsOn = !levelsOn;
+            level1.setVisible(levelsOn);
+            level2.setVisible(levelsOn);
+            level3.setVisible(levelsOn);
         });
         setting.setOnAction(event -> {
-            sound.setVisible(true);
-            music.setVisible(true);
+            settingsOn = !settingsOn;
+            sound.setVisible(settingsOn);
+            music.setVisible(settingsOn);
         });
         exit.setOnAction(event -> {
             Stage stage = (Stage) exit.getScene().getWindow();
@@ -449,8 +564,8 @@ public class BrickBreaker extends Application  {
 
         levels.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
         levels.setGraphic(levelsImg);
-        sound.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
-        music.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
+        sound.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,16));
+        music.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,16));
         exit.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
         level1.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
         level2.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
@@ -458,8 +573,18 @@ public class BrickBreaker extends Application  {
 
 
         StackPane root = new StackPane();
+        VBox vBox = new VBox(50);
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
+        vBox.setAlignment(Pos.CENTER);
+        Label lblInstruction = new Label("Mouse To Move and Press Space To pause");
+        lblInstruction.setFont(Font.font("DejaVu Math TeX Gyre"));
+        lblInstruction.setTextFill(Color.WHITE);
+        lblInstruction.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,25));
+        lblInstruction.setUnderline(true);
+        vBox.getChildren().addAll(lblInstruction,grid);
+
+
         /*levels.setStyle("-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: hotpink; -fx-background-color: snow; -fx-background-radius: 20; -fx-border-color: snow; -fx-border-radius: 20; -fx-padding: 0;");
         level1.setStyle("-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: hotpink; -fx-background-color: snow; -fx-background-radius: 20; -fx-border-color: snow; -fx-border-radius: 20; -fx-padding: 0;");
         level2.setStyle("-fx-font-weight: bold; -fx-font-size: 20px; -fx-text-fill: hotpink; -fx-background-color: snow; -fx-background-radius: 20; -fx-border-color: snow; -fx-border-radius: 20; -fx-padding: 0;");
@@ -527,11 +652,156 @@ public class BrickBreaker extends Application  {
         grid.add(vsetting, 1, 1);
         vlevels.setAlignment(Pos.CENTER);
         vsetting.setAlignment(Pos.TOP_CENTER);
-        root.getChildren().addAll(mv,grid);
+        root.getChildren().addAll(mv,vBox);
 
          introScene = new Scene(root, 1080, 720);
 
     }
+
+    private void createAdvancedBall(Brick brick)
+    {
+        advancedBall = new Ball(brick.getX() + brick.getWidth() / 2,brick.getY() + brick.getHeight() + brick.getWidth() * 0.2,brick.getWidth() * 0.2);
+        advancedBall.setDeltaX(0);
+        advancedBall.setDeltaY(1.5);
+        isAdvancedBallCreated = true;
+        outerRoot.getChildren().add(advancedBall);
+        /*checkCollisionPaddle();*/
+        /*checkCollisionBottomZone();*/
+    }
+    private void addLives()
+    {
+        numOfLives.clear();
+        System.out.println(lives);
+        lives++;
+        System.out.println(lives);
+
+        drawLives(lives);
+    }
+
+    /*private void addBalls()
+    {
+        ballCounter += 3;
+        for(int i = 0;i < 3; i++)
+        {
+            balls.add(new Ball(paddle.getLayoutX() + paddle.getWidth() / 2,paddle.getLayoutY() - 10,ball.getRadius()));
+        }
+
+        double deltaY = ball.getDeltaY();
+        if(deltaY > 0)
+        {
+            deltaY *= -1;
+        }
+        for(int i = 0; i < balls.size(); i++)
+        {
+            balls.get(i).setDeltaY(deltaY);
+            balls.get(i).setDeltaX(Math.random() * 3);
+            outerRoot.getChildren().add(balls.get(i));
+            balls.get(i).setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\ball.png")));
+        }
+    }*/
+    private void checkCollisionPaddle(Rectangle paddle,Ball advancedBall) {
+
+        if (advancedBall.getBoundsInParent().intersects(paddle.getBoundsInParent())) {
+            outerRoot.getChildren().remove(advancedBall);
+            isAdvancedBallCreated = false;
+            if(lives < 5)
+                addLives();
+        }
+
+    }
+
+    private void checkCollisionBottomZone1(Ball advancedBall)
+    {
+        if(advancedBall.getBoundsInParent().intersects(bottomZone.getBoundsInParent())) {
+            outerRoot.getChildren().remove(advancedBall);
+        }
+    }
+    private void pausePage()
+    {
+        Button cont = new Button("Continue");
+        /*Button setting = new Button("Setting");*/
+        Button sound = new Button("Sound");
+        Button music = new Button("Music");
+
+        cont.setPrefHeight(40);
+        cont.setPrefWidth(200);
+        menu.setPrefHeight(40);
+        menu.setPrefWidth(150);
+        sound.setPrefHeight(40);
+        sound.setPrefWidth(150);
+        music.setPrefHeight(40);
+        music.setPrefWidth(150);
+        Rectangle rectangle = new Rectangle(0,0,outerRoot.getWidth(),outerRoot.getHeight());
+        rectangle.setFill(Color.color(0,0,0,0.5));
+        outerRoot.getChildren().add(rectangle);
+        cont.setOnAction(e -> {
+            timeline.play();
+            playFlag = !playFlag;
+            outerRoot.getChildren().remove(rectangle);
+            outerRoot.getChildren().remove(vbox2);
+            vbox2.getChildren().clear();
+        });
+        ImageView soundImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+        soundImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
+        soundImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
+        ImageView musicImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+        musicImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
+        musicImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
+        sound.setOnAction(e ->{
+            if(soundFlag)
+            {
+                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+                sound.setGraphic(soundImg);
+                soundFlag = !soundFlag;
+            }
+            else{
+                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+                sound.setGraphic(soundImg);
+                soundFlag = !soundFlag;
+            }
+        });
+        sound.setGraphic(soundImg);
+
+        music.setOnAction(e ->{
+            if(musicFlag)
+            {
+                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+                music.setGraphic(musicImg);
+                musicFlag = !musicFlag;
+            }
+            else{
+                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+                music.setGraphic(musicImg);
+                musicFlag = !musicFlag;
+            }
+        });
+        music.setGraphic(musicImg);
+
+        cont.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
+        cont.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
+        menu.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
+        menu.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
+        /*setting.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
+        setting.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));*/
+        sound.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
+        sound.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
+        music.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
+        music.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
+        /*HBox hbox2 = new HBox();
+        hbox2.getChildren().addAll(cont,setting,menu);
+        hbox2.setSpacing(15);
+        hbox2.setAlignment(Pos.CENTER);*/
+
+        vbox2.getChildren().addAll(cont,sound,music,menu);
+        vbox2.setSpacing(10);
+        vbox2.setAlignment(Pos.CENTER);
+        vbox2.setLayoutX(outerRoot.getWidth() / 3 + 75);
+        vbox2.setLayoutY(outerRoot.getHeight() / 3);
+        outerRoot.getChildren().add(vbox2);
+
+    }
+
+
 
     public static void main(String[] args) {
         launch();
