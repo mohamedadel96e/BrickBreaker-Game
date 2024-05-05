@@ -21,4 +21,13 @@ public class Ball extends Circle {
     public void setDeltaY(double deltaY) {
         this.deltaY = deltaY;
     }
+
+    public Ball(double centerX, double centerY, double radius) {
+        super(centerX, centerY, radius);
+        this.deltaX = deltaX;
+        this.deltaY = deltaY;
+    }
+
+    public Ball() {
+    }
 }
