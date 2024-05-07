@@ -39,7 +39,6 @@ public class BrickBreaker extends Application  {
     Scene playingScene;
     Pane outerRoot = new Pane();
     Ball ball = new Ball();
-    /*int  ballCounter = 1;*/
     Ball advancedBall;
     boolean isAdvancedBallCreated = false;
     Rectangle paddle = new Rectangle();
@@ -49,13 +48,12 @@ public class BrickBreaker extends Application  {
     Button level2 = new Button("level 2");
     Button level3 = new Button("level 3");
     VBox vbox2 = new VBox();
-    Rectangle rectangle;
+
     boolean settingsOn;
     boolean levelsOn;
     boolean playFlag = true;
     boolean soundFlag = false;
     boolean musicFlag = false;
-    /*ArrayList <Ball> balls = new ArrayList<>();*/
     int lives = 3;
     ArrayList<Rectangle>  numOfLives = new ArrayList<>(3);
 
@@ -185,7 +183,6 @@ public class BrickBreaker extends Application  {
         });
         menu.setOnAction(e ->{
             timeline.stop();
-
             if(levelsOn)
             {
                 levelsOn = false;
@@ -246,12 +243,12 @@ public class BrickBreaker extends Application  {
         int random = (((int) (Math.random() * 100)) %  4);
         if(random >= 2)
         {
-            ball.setDeltaX(-Math.random() * 2);
-            ball.setDeltaY(-2);
+            ball.setDeltaX(-Math.random() * 4);
+            ball.setDeltaY(-4);
         }
         else {
-            ball.setDeltaX(Math.random() * 2);
-            ball.setDeltaY(-2);
+            ball.setDeltaX(Math.random() * 4);
+            ball.setDeltaY(-4);
         }
 
     }
@@ -290,33 +287,40 @@ public class BrickBreaker extends Application  {
     }
     private void checkBorders(boolean rightBorder, boolean leftBorder, boolean bottomBorder, boolean topBorder) {
         if (rightBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() < 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1.02);
+            ball.setDeltaX(ball.getDeltaX() * -1);
         } else if (leftBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() > 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1.02);
+            ball.setDeltaX(ball.getDeltaX() * -1);
         }
         if (rightBorder  && (topBorder || bottomBorder) && ball.getDeltaX() < 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1.02);
-            ball.setDeltaY(ball.getDeltaY() * -1.02);
+            ball.setDeltaX(ball.getDeltaX() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);
         } else if (leftBorder  && (topBorder || bottomBorder) && ball.getDeltaX() > 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1.02);
-            ball.setDeltaY(ball.getDeltaY() * -1.02);
+            ball.setDeltaX(ball.getDeltaX() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);
         }
         if (bottomBorder && ball.getDeltaY() < 0) {
-            ball.setDeltaY(ball.getDeltaY() * -1.02);
+            ball.setDeltaY(ball.getDeltaY() * -1);
         } else if (topBorder && ball.getDeltaY() > 0) {
-            ball.setDeltaY(ball.getDeltaY() * -1.02);
+            ball.setDeltaY(ball.getDeltaY() * -1);
         }
     }
     public void checkCollisionPaddle(Rectangle paddle) {
 
         if (ball.getBoundsInParent().intersects(paddle.getBoundsInParent())) {
 
-            boolean rightBorder = ball.getLayoutX() >= ((paddle.getLayoutX() + paddle.getWidth()) - ball.getRadius());
+            /*boolean rightBorder = ball.getLayoutX() >= ((paddle.getLayoutX() + paddle.getWidth()) - ball.getRadius());
             boolean leftBorder = ball.getLayoutX() <= (paddle.getLayoutX() + ball.getRadius());
             boolean bottomBorder = ball.getLayoutY() >= ((paddle.getLayoutY() + paddle.getHeight()) - ball.getRadius());
             boolean topBorder = ball.getLayoutY() <= (paddle.getLayoutY() + ball.getRadius());
 
-            checkBorders(rightBorder, leftBorder, bottomBorder, topBorder);
+            checkBorders(rightBorder, leftBorder, bottomBorder, topBorder);*/
+            double relativeIntersectX = (ball.getLayoutX() + ball.getRadius()) - (paddle.getLayoutX() + paddle.getWidth() / 2);
+            double normalizedIntersectX = relativeIntersectX / (paddle.getWidth() / 2);
+            double bounceAngle = normalizedIntersectX * Math.PI / 3; // Maximum bounce angle
+            ball.setDeltaX( Math.sin(bounceAngle) * 5);
+            ball.setDeltaY(-Math.cos(bounceAngle) * 5);
+
+
         }
 
     }
@@ -392,11 +396,11 @@ public class BrickBreaker extends Application  {
                 }
 
                 if ((((int) (Math.random() * 100)) % 4) >= 2) {
-                    ball.setDeltaX(-Math.random() * 2);
-                    ball.setDeltaY(-2);
+                    ball.setDeltaX(-Math.random() * 4);
+                    ball.setDeltaY(-4);
                 } else {
-                    ball.setDeltaX(Math.random() * 2);
-                    ball.setDeltaY(-2);
+                    ball.setDeltaX(Math.random() * 4);
+                    ball.setDeltaY(-4);
                 }
             } else {
 
@@ -412,11 +416,11 @@ public class BrickBreaker extends Application  {
                 paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);
                 int random = ((int) (Math.random() * 100)) % 4;
                 if (random >= 2) {
-                    ball.setDeltaX(-Math.random() * 2);
-                    ball.setDeltaY(-2);
+                    ball.setDeltaX(-Math.random() * 4);
+                    ball.setDeltaY(-4);
                 } else {
-                    ball.setDeltaX(Math.random() * 2);
-                    ball.setDeltaY(-2);
+                    ball.setDeltaX(Math.random() * 4);
+                    ball.setDeltaY(-4);
                 }
 
                 ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
@@ -437,8 +441,8 @@ public class BrickBreaker extends Application  {
         double width = outerRoot.getPrefWidth();
         double height = outerRoot.getPrefHeight();
         double space = 15;
-        int numOfBricksInRow = 15;
-        int numOfBrickInColumn = 4;
+        int numOfBricksInRow = 10;
+        int numOfBrickInColumn = 5;
         double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
         double brickHeight = brickWidth * 0.5;
         int columnCount = 0;
@@ -455,9 +459,9 @@ public class BrickBreaker extends Application  {
                         for (double j = 10; j < width - 10; j = j + brickWidth + space) {
 
                                 brick = switch (columnCount) {
-                                    case 3 ->
+                                    case 4 ->
                                             new Brick(j, i, brickWidth, brickHeight, 1);
-                                    case 2 ->
+                                    case 3 ->
                                             new Brick(j, i, brickWidth, brickHeight, 2);
                                     default ->
                                             new Brick(j, i, brickWidth, brickHeight, random1To3());
@@ -601,8 +605,6 @@ public class BrickBreaker extends Application  {
 
         Image m = new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\introBG.jpg");
         ImageView mv = new ImageView(m);
-        mv.setFitHeight(700);
-        mv.setFitWidth(550);
         mv.fitHeightProperty().bind(root.heightProperty());
         mv.fitWidthProperty().bind(root.widthProperty());
 
@@ -671,10 +673,7 @@ public class BrickBreaker extends Application  {
     private void addLives()
     {
         numOfLives.clear();
-        System.out.println(lives);
         lives++;
-        System.out.println(lives);
-
         drawLives(lives);
     }
 
