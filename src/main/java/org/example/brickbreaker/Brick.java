@@ -2,6 +2,7 @@ package org.example.brickbreaker;
 
 import javafx.animation.FadeTransition;
 import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -14,15 +15,6 @@ public class Brick  extends Rectangle {
 
 
 
-    public boolean isCrashed() {
-        return crashed;
-    }
-
-
-    public void setCrashed(boolean crashed) {
-
-        this.crashed = crashed;
-    }
     public Brick()
     {
 
