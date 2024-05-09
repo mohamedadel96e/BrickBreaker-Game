@@ -40,11 +40,12 @@ public class BrickBreaker extends Application  {
     Scene introScene ;
     Button menu = new Button("Menu");
     Scene playingScene;
-    Pane outerRoot = new Pane();
+    WinningScene winningScene = new WinningScene();
+    BackGround outerRoot = new BackGround();
     Ball ball = new Ball();
     Ball advancedBall;
     boolean isAdvancedBallCreated = false;
-    Rectangle paddle = new Rectangle();
+    Paddle paddle = new Paddle();
     Rectangle bottomZone = new Rectangle();
     Button startButton = new Button();
     Button level1 = new Button("level 1");
@@ -119,6 +120,16 @@ public class BrickBreaker extends Application  {
                     }
                     if(soundFlag)
                         winningSound.play();
+                    playingScene.setRoot(winningScene);
+                    winningScene.drawStars(score);
+                    bricks.clear();
+                    numOfLives.clear();
+                    vbox2.getChildren().clear();
+                    playFlag = true;
+                    outerRoot.getChildren().clear();
+                    initialize();
+                    score = 0;
+                    winningScene.playAgain(playingScene,outerRoot,buttonsSound,soundFlag);
                     System.out.println("You won!");
                 }
 
@@ -219,9 +230,13 @@ public class BrickBreaker extends Application  {
                 levelsOn = false;
             }
             intro();
+            bricks.clear();
+            numOfLives.clear();
+            vbox2.getChildren().clear();
+            playFlag = true;
             stage.setScene(introScene);
             playingScene.setRoot(new Pane());
-            outerRoot = new Pane();
+            outerRoot = new BackGround();
 
         });
         intro();
@@ -236,21 +251,13 @@ public class BrickBreaker extends Application  {
         score = 0;
         numCrashed = 0;
         isAdvancedBallCreated = false;
-        outerRoot.setPrefWidth(1080);
-        outerRoot.setPrefHeight(720);
         paddle.setWidth(paddleStartSize);
-        paddle.setArcWidth(5);
-        paddle.setArcHeight(5);
-        paddle.setStrokeType(StrokeType.INSIDE);
-        paddle.setHeight(10);
         paddle.setLayoutX(outerRoot.getWidth() / 2 + paddle.getWidth() * 3);
         paddle.setLayoutY(outerRoot.getPrefHeight() - 50);
         ball.setLayoutY(paddle.getLayoutY() - 15);
         ball.setLayoutX(paddle.getLayoutX() +paddle.getWidth() / 2);
         ball.setRadius(12);
         timeline.setCycleCount(Animation.INDEFINITE);
-        paddle.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\block.jpg")));
-        outerRoot.setBackground(Background.fill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\71.jpg"))));
         ball.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\ball.png")));
         lblScore.setText("SCORE: " + score);
         lblScore.setLayoutX(outerRoot.getPrefWidth() - 150);
@@ -263,7 +270,11 @@ public class BrickBreaker extends Application  {
         bottomZone.setHeight(20);
         bottomZone.setWidth(outerRoot.getPrefWidth());
         bottomZone.setFill(Color.TRANSPARENT);
-        startButton.setText("a7a");
+        startButton.setBackground(Background.EMPTY);
+        ImageView startButtonImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\play.png"));
+        startButton.setGraphic(startButtonImg);
+        startButtonImg.fitWidthProperty().bind(startButton.prefWidthProperty());
+        startButtonImg.fitHeightProperty().bind(startButtonImg.fitWidthProperty());
         startButton.setPrefWidth(50);
         startButton.setPrefHeight(50);
         startButton.setLayoutX(outerRoot.getPrefWidth() / 2 - startButton.getPrefWidth());
@@ -479,8 +490,8 @@ public class BrickBreaker extends Application  {
         double width = outerRoot.getPrefWidth();
         double height = outerRoot.getPrefHeight();
         double space = 15;
-        int numOfBricksInRow = 10;
-        int numOfBrickInColumn = 5;
+        int numOfBricksInRow = 2;
+        int numOfBrickInColumn = 2;
         double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
         double brickHeight = brickWidth * 0.5;
         int columnCount = 0;
@@ -814,16 +825,16 @@ public class BrickBreaker extends Application  {
                 buttonsSound.stop();
                 buttonsSound.seek(buttonsSound.getStartTime());
             }
-            if(soundFlag)
+            if(!soundFlag)
                 buttonsSound.play();
             if(soundFlag)
             {
-                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
                 sound.setGraphic(soundImg);
                 soundFlag = !soundFlag;
             }
             else{
-                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
                 sound.setGraphic(soundImg);
                 soundFlag = !soundFlag;
             }
