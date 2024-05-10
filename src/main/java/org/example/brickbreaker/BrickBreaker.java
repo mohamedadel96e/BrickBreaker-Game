@@ -38,9 +38,11 @@ import java.util.ArrayList;
 public class BrickBreaker extends Application  {
 
     Scene introScene ;
+    Stage stage;
     Button menu = new Button("Menu");
     Scene playingScene;
     WinningScene winningScene = new WinningScene();
+    LoosingScene loosingScene = new LoosingScene();
     BackGround outerRoot = new BackGround();
     Ball ball = new Ball();
     Ball advancedBall;
@@ -74,6 +76,7 @@ public class BrickBreaker extends Application  {
     MediaPlayer gameOverSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/GameOver/GameOver.mp3").toURI().toString()));
     MediaPlayer advancedBallSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/GetAdvancedBall/bonus-points.mp3").toURI().toString()));
     MediaPlayer winningSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/Winning/Winning.mp3").toURI().toString()));
+    MediaPlayer music = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/musicSound.mp3").toURI().toString()));
     ArrayList <Brick> bricks = new ArrayList<>();
     Timeline timeline = new Timeline(new KeyFrame(Duration.millis(10), new EventHandler<ActionEvent>() {
         @Override
@@ -121,6 +124,7 @@ public class BrickBreaker extends Application  {
                     if(soundFlag)
                         winningSound.play();
                     playingScene.setRoot(winningScene);
+                    System.out.println(score);
                     winningScene.drawStars(score);
                     bricks.clear();
                     numOfLives.clear();
@@ -129,7 +133,30 @@ public class BrickBreaker extends Application  {
                     outerRoot.getChildren().clear();
                     initialize();
                     score = 0;
-                    winningScene.playAgain(playingScene,outerRoot,buttonsSound,soundFlag);
+                    winningScene.playAgain(playingScene,outerRoot,buttonsSound,soundFlag,paddle,ball);
+                    winningScene.menuButton.setOnAction(event ->{
+                        winningScene.menuButtonHandle();
+                        if(buttonsSound.getStatus() == MediaPlayer.Status.PLAYING)
+                        {
+                            buttonsSound.stop();
+                            buttonsSound.seek(buttonsSound.getStartTime());
+                        }
+                        if(soundFlag)
+                            buttonsSound.play();
+                        timeline.stop();
+                        if(levelsOn)
+                        {
+                            levelsOn = false;
+                        }
+                        intro();
+                        bricks.clear();
+                        numOfLives.clear();
+                        vbox2.getChildren().clear();
+                        playFlag = true;
+                        stage.setScene(introScene);
+                        playingScene.setRoot(new Pane());
+                        outerRoot = new BackGround();
+                    });
                     System.out.println("You won!");
                 }
 
@@ -152,6 +179,8 @@ public class BrickBreaker extends Application  {
     public void start(Stage stage) throws Exception {
 
         stage.setResizable(false);
+        this.stage = stage;
+        music.play();
 
         level1.setOnAction( e ->{
             if(buttonsSound.getStatus() == MediaPlayer.Status.PLAYING)
@@ -247,12 +276,13 @@ public class BrickBreaker extends Application  {
 
     public void initialize()
     {
+
         lives = 3;
         score = 0;
         numCrashed = 0;
         isAdvancedBallCreated = false;
         paddle.setWidth(paddleStartSize);
-        paddle.setLayoutX(outerRoot.getWidth() / 2 + paddle.getWidth() * 3);
+        paddle.setLayoutX(outerRoot.getPrefWidth() / 2 - paddle.getWidth() /2);
         paddle.setLayoutY(outerRoot.getPrefHeight() - 50);
         ball.setLayoutY(paddle.getLayoutY() - 15);
         ball.setLayoutX(paddle.getLayoutX() +paddle.getWidth() / 2);
@@ -447,6 +477,56 @@ public class BrickBreaker extends Application  {
             } else {
 
                 timeline.stop();
+                playingScene.setRoot(loosingScene);
+                loosingScene.getMenuButton().setOnAction( e ->{
+                    if(buttonsSound.getStatus() == MediaPlayer.Status.PLAYING)
+                    {
+                        buttonsSound.stop();
+                        buttonsSound.seek(buttonsSound.getStartTime());
+                    }
+                    if(soundFlag)
+                        buttonsSound.play();
+                    if(levelsOn)
+                    {
+                        levelsOn = false;
+                    }
+                    intro();
+                    bricks.clear();
+                    numOfLives.clear();
+                    vbox2.getChildren().clear();
+                    playFlag = true;
+                    stage.setScene(introScene);
+                    playingScene.setRoot(new Pane());
+                    outerRoot = new BackGround();
+                });
+
+                loosingScene.getPlayAgainButton().setOnAction(e ->{
+                    playingScene.setRoot(outerRoot);
+                    bricks.clear();
+                    numOfLives.clear();
+                    vbox2.getChildren().clear();
+                    playFlag = true;
+                    if (buttonsSound.getStatus() == MediaPlayer.Status.PLAYING) {
+                        buttonsSound.stop();
+                        buttonsSound.seek(buttonsSound.getStartTime());
+                    }
+                    if (soundFlag)
+                        buttonsSound.play();
+                    paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);
+                    ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
+
+                    if (((int) (Math.random() * 100)) % 4 >= 2) {
+                        ball.setDeltaX(-Math.random() * 4);
+                        ball.setDeltaY(-4);
+                    } else {
+                        ball.setDeltaX(Math.random() * 4);
+                        ball.setDeltaY(-4);
+                    }
+                    ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
+                    ball.setLayoutY(paddle.getLayoutY() - 10);
+                    outerRoot.getChildren().clear();
+                    initialize();
+                });
                 if(gameOverSound.getStatus() == MediaPlayer.Status.PLAYING)
                 {
                     gameOverSound.stop();
@@ -460,20 +540,7 @@ public class BrickBreaker extends Application  {
                 startButton.setVisible(true);
                 score = 0;
                 lives = 3;
-                drawLives(lives);
-                paddle.setWidth(paddleStartSize);
                 paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);
-                int random = ((int) (Math.random() * 100)) % 4;
-                if (random >= 2) {
-                    ball.setDeltaX(-Math.random() * 4);
-                    ball.setDeltaY(-4);
-                } else {
-                    ball.setDeltaX(Math.random() * 4);
-                    ball.setDeltaY(-4);
-                }
-
-                ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
-                ball.setLayoutY(paddle.getLayoutY() - 10);
 
                 System.out.println("Game over!");
             }
@@ -490,8 +557,8 @@ public class BrickBreaker extends Application  {
         double width = outerRoot.getPrefWidth();
         double height = outerRoot.getPrefHeight();
         double space = 15;
-        int numOfBricksInRow = 2;
-        int numOfBrickInColumn = 2;
+        int numOfBricksInRow = 10;
+        int numOfBrickInColumn = 5;
         double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
         double brickHeight = brickWidth * 0.5;
         int columnCount = 0;
@@ -530,7 +597,7 @@ public class BrickBreaker extends Application  {
 
         }
     }
-    private void intro()
+    private  void intro()
     {
         Button levels = new Button("Levels");
         Button setting = new Button("Setting");
@@ -565,6 +632,7 @@ public class BrickBreaker extends Application  {
             if(soundFlag)
             {
                 soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+
                 sound.setGraphic(soundImg);
                 soundFlag = !soundFlag;
             }
