@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class WinningScene extends Pane {
     private Button nextLevelButton = new Button("Next Level");
     private Button playAgainButton = new Button("Play Again");
-    private Button menuButton = new Button("Menu");
+    public Button menuButton = new Button("Menu");
     private HBox hBox = new HBox(30);
     private Text winText = new Text("Don't play again");
     private int numOfStars = 0;
@@ -63,23 +63,32 @@ public class WinningScene extends Pane {
         }
 
     }
-    public void playAgain(Scene scene, Pane pane, MediaPlayer buttonsSound,boolean soundFlag)
+    public void playAgain(Scene scene, Pane pane, MediaPlayer buttonsSound,boolean soundFlag,Paddle paddle,Ball ball)
     {
-        playAgainButton.setOnAction(e ->{
+        playAgainButton.setOnAction(e -> {
             scene.setRoot(pane);
-            if(buttonsSound.getStatus() == MediaPlayer.Status.PLAYING)
-            {
+            if (buttonsSound.getStatus() == MediaPlayer.Status.PLAYING) {
                 buttonsSound.stop();
                 buttonsSound.seek(buttonsSound.getStartTime());
             }
-            if(soundFlag)
+            if (soundFlag)
                 buttonsSound.play();
-            stars.clear();
-            scene.setRoot(pane);
-            numOfStars = 0;
-            for(int i = 0; i < numOfStars; i++)
+
+            for (int i = 0; i < numOfStars; i++) {
                 this.getChildren().remove(stars.get(i));
+            }
+            stars.clear();
+            numOfStars = 0;
+            paddle.setLayoutX(pane.getWidth() / 2 - paddle.getWidth() / 2);
+            ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
         });
+    }
+    public void menuButtonHandle(){
+        for (int i = 0; i < numOfStars; i++) {
+            this.getChildren().remove(stars.get(i));
+        }
+        stars.clear();
+        numOfStars = 0;
     }
 
 }
