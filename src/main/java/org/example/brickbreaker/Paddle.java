@@ -9,10 +9,10 @@ public class Paddle extends Rectangle {
 
     public Paddle()
     {
-        setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\block.jpg")));
+        setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\paddlePhoto.png")));
         setArcWidth(5);
         setArcHeight(5);
         setStrokeType(StrokeType.INSIDE);
-        setHeight(10);
+        setHeight(15);
     }
 }
