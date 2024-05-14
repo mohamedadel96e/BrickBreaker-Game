@@ -25,7 +25,6 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.File;
 import java.util.ArrayList;
 
 
@@ -45,6 +44,7 @@ public class BrickBreaker extends Application  {
     // Ball objects
     Ball ball = new Ball();
     Ball advancedBall;
+    Rectangle fireRectangle = new Rectangle(1080,720,Color.ORANGE);
     boolean isAdvancedBallCreated = false;
 
     // Paddle object
@@ -78,6 +78,7 @@ public class BrickBreaker extends Application  {
     // Player score
     int score = 0;
     int numCrashed = 0;
+    long timer = 0;
 
     // Current level
     int level;
@@ -128,6 +129,18 @@ public class BrickBreaker extends Application  {
                     }
                 }
             });
+            // for make a timer for 3 seconds for the fireball
+            if(ball.isFire())
+            {
+                fireRectangle.setOpacity((double) (timer % 300) / 1500.0);
+                timer++;
+                if(timer % 300 == 0)
+                {
+                    ball.setFire(false);
+                    outerRoot.getChildren().remove(fireRectangle);
+                    timer = 0;
+                }
+            }
             /* check for the ball if it touched with the paddle or not
              * and if is not the continue playing
              * and if is touched the game won't play until mouse clicked*/
@@ -428,6 +441,7 @@ public class BrickBreaker extends Application  {
         startButton.setVisible(true);
         outerRoot.getChildren().addAll(paddle,ball,lblScore,bottomZone,startButton);
         drawLives(lives);
+        fireRectangle.setOpacity(0);
         int random = (((int) (Math.random() * 100)) %  4);
         if(random >= 2)
         {
@@ -510,6 +524,12 @@ public class BrickBreaker extends Application  {
     public boolean checkCollisionBrick(Brick brick) {
 
         if (ball.getBoundsInParent().intersects(brick.getBoundsInParent()) ) {
+            if(ball.isFire()){
+                score += 500;
+                lblScore.setText("SCORE: " + score);
+                outerRoot.getChildren().remove(brick);
+                return true;
+            }
             boolean rightBorder = ball.getLayoutX() >= ((brick.getX() + brick.getWidth()) - ball.getRadius());
             boolean leftBorder = ball.getLayoutX() <= (brick.getX() + ball.getRadius());
             boolean bottomBorder = ball.getLayoutY() >= ((brick.getY() + brick.getHeight()) - ball.getRadius());
@@ -968,7 +988,12 @@ public class BrickBreaker extends Application  {
     private void createAdvancedBall(Brick brick)
     {
         advancedBall = new Ball(brick.getX() + brick.getWidth() / 2,brick.getY() + brick.getHeight() + brick.getWidth() * 0.2,ball.getRadius() +3);
-        advancedBall.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\addedLife.png")));
+        if(lives < 5) {
+            advancedBall.setAdvancedBallType((int) (Math.random() * 100 % 2));
+        }
+        else{
+            advancedBall.setAdvancedBallType(1);
+        }
         advancedBall.setStroke(Color.BLACK);
         advancedBall.setDeltaX(0);
         advancedBall.setDeltaY(1.5);
@@ -984,6 +1009,18 @@ public class BrickBreaker extends Application  {
         lives++;
         drawLives(lives);
     }
+    private void fireBall(){
+        ball.setFire(true);
+        fireRectangle.setOpacity(0);
+        outerRoot.getChildren().add(fireRectangle);
+        if(soundsOfGame.getFireSound().getStatus() == MediaPlayer.Status.PLAYING)
+        {
+            soundsOfGame.getFireSound().stop();
+            soundsOfGame.getFireSound().seek(soundsOfGame.getFireSound().getStartTime());
+        }
+        if(soundFlag)
+            soundsOfGame.getFireSound().play();
+    }
     private void checkCollisionPaddle(Paddle paddle,Ball advancedBall) {
 
         if (advancedBall.getBoundsInParent().intersects(paddle.getBoundsInParent())) {
@@ -996,12 +1033,22 @@ public class BrickBreaker extends Application  {
                 soundsOfGame.getAdvancedBallSound().play();
             outerRoot.getChildren().remove(advancedBall);
             isAdvancedBallCreated = false;
-            if(lives == 5){
+            if(lives >= 5){
                 score += 1000;
                 lblScore.setText("SCORE: " + score);
+                fireBall();
             }
-            if(lives < 5)
-                addLives();
+            if(lives < 5){
+                switch (advancedBall.getAdvancedBallType())
+                {
+                    case 0:
+                        addLives();
+                        break;
+                    case 1:
+                        fireBall();
+                        break;
+                }
+            }
         }
 
     }
