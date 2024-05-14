@@ -91,4 +91,7 @@ public class WinningScene extends Pane {
         numOfStars = 0;
     }
 
+    public Button getNextLevelButton() {
+        return nextLevelButton;
+    }
 }

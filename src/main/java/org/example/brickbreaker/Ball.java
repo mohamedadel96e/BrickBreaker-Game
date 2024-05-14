@@ -1,5 +1,7 @@
 package org.example.brickbreaker;
 
+import javafx.scene.image.Image;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 
 public class Ball extends Circle {
@@ -24,6 +26,7 @@ public class Ball extends Circle {
 
     public Ball(double centerX, double centerY, double radius) {
         super(centerX, centerY, radius);
+        setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\ball.png")));
     }
 
     public Ball() {

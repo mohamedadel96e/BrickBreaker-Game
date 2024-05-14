@@ -80,7 +80,7 @@ public class BrickBreaker extends Application  {
     int numCrashed = 0;
 
     // Current level
-    String level;
+    int level;
 
     // Initial paddle size
     int paddleStartSize = 150;
@@ -129,8 +129,8 @@ public class BrickBreaker extends Application  {
                 }
             });
             /* check for the ball if it touched with the paddle or not
-            * and if is not the continue playing
-            * and if is touched the game won't play until mouse clicked*/
+             * and if is not the continue playing
+             * and if is touched the game won't play until mouse clicked*/
             if(!ballIsTouched)
             {
                 // checking the collision of the ball with the paddle and handle the detection
@@ -196,7 +196,35 @@ public class BrickBreaker extends Application  {
                         playingScene.setRoot(new Pane());
                         outerRoot = new BackGround();
                     });
-                    System.out.println("You won!");
+                    winningScene.getNextLevelButton().setOnAction(e ->{
+                        playingScene.setRoot(outerRoot);
+                        bricks.clear();
+                        numOfLives.clear();
+                        vbox2.getChildren().clear();
+                        playFlag = true;
+                        if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
+                            soundsOfGame.getButtonsSound().stop();
+                            soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
+                        }
+                        if (soundFlag)
+                            soundsOfGame.getButtonsSound().play();
+                        paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);
+                        ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
+
+                        if (((int) (Math.random() * 100)) % 4 >= 2) {
+                            ball.setDeltaX(-Math.random() * 4);
+                            ball.setDeltaY(-4);
+                        } else {
+                            ball.setDeltaX(Math.random() * 4);
+                            ball.setDeltaY(-4);
+                        }
+                        ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
+                        ball.setLayoutY(paddle.getLayoutY() - 10);
+                        outerRoot.getChildren().clear();
+                        if(level < 3)
+                            level = level + 1;
+                        initialize();
+                    });
                 }
 
                 checkCollisionScene(outerRoot);
@@ -244,7 +272,7 @@ public class BrickBreaker extends Application  {
             playingScene = new Scene(outerRoot);
 
             // Set the current level to "One"
-            level = "One";
+            level = 1;
 
             // Initialize the game elements
             initialize();
@@ -275,7 +303,7 @@ public class BrickBreaker extends Application  {
             if(soundFlag)
                 soundsOfGame.getButtonsSound().play();
             playingScene = new Scene(outerRoot);
-            level = "Two";
+            level = 2;
             initialize();
             startButton.setOnAction( e1 -> {
                 startButton.setVisible(false);
@@ -296,7 +324,7 @@ public class BrickBreaker extends Application  {
             if(soundFlag)
                 soundsOfGame.getButtonsSound().play();
             playingScene = new Scene(outerRoot);
-            level = "Three";
+            level = 3;
             initialize();
             startButton.setOnAction( e1 -> {
                 startButton.setVisible(false);
@@ -375,7 +403,6 @@ public class BrickBreaker extends Application  {
         ball.setLayoutX(paddle.getLayoutX() +paddle.getWidth() / 2);
         ball.setRadius(12);
         timeline.setCycleCount(Animation.INDEFINITE);
-        ball.setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\ball.png")));
         lblScore.setText("SCORE: " + score);
         lblScore.setLayoutX(outerRoot.getPrefWidth() - 150);
         lblScore.setLayoutY(10);
@@ -653,38 +680,38 @@ public class BrickBreaker extends Application  {
         double width = outerRoot.getPrefWidth();
         double height = outerRoot.getPrefHeight();
         double space = 15;
+        int numOfBricksInRow = 10;
+        int numOfBrickInColumn = 5;
+        double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
+        double brickHeight = brickWidth * 0.5;
         int columnCount = 0;
         switch (level)
         {
-            case "One":
-                int numOfBricksInRow = 10;
-                int numOfBrickInColumn = 5;
-                double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
-                double brickHeight = brickWidth * 0.5;
-
+            case 1:
                 for(double i = lblScore.getLayoutY() + lblScore.getHeight() * 3; i < height * 0.6;i = i + brickHeight + space)
                 {
                     if(columnCount >= numOfBrickInColumn)
                     {
                         break;
                     }
-                        for (double j = 10; j < width - 10; j = j + brickWidth + space) {
+                    for (double j = 10; j < width - 10; j = j + brickWidth + space) {
 
-                                brick = switch (columnCount) {
-                                    case 4 ->
-                                            new Brick(j, i, brickWidth, brickHeight, 1);
-                                    case 3 ->
-                                            new Brick(j, i, brickWidth, brickHeight, 2);
-                                    default ->
-                                            new Brick(j, i, brickWidth, brickHeight, random1To3());
-                                };
+                        brick = switch (columnCount) {
+                            case 4 ->
+                                    new Brick(j, i, brickWidth, brickHeight, 1);
+                            case 3 ->
+                                    new Brick(j, i, brickWidth, brickHeight, 2);
+                            default ->
+                                    new Brick(j, i, brickWidth, brickHeight, random1To3());
+                        };
 
-                                outerRoot.getChildren().add(brick);
-                                bricks.add(brick);
-                        }
-                        columnCount++;
+                        outerRoot.getChildren().add(brick);
+                        bricks.add(brick);
+                    }
+                    columnCount++;
                 }
-            case "Two":
+                break;
+            case 2:
                 int bricksTriangle = 5;
                 brickWidth = (width / 2 - bricksTriangle * space)  / bricksTriangle;
                 int rowCount = 0;
@@ -722,7 +749,7 @@ public class BrickBreaker extends Application  {
                     rowCount = 0;
                 }
                 break;
-            case "Three":
+            case 3:
                 break;
 
         }
@@ -785,6 +812,7 @@ public class BrickBreaker extends Application  {
                 soundFlag = !soundFlag;
             }
         });
+        sound.setGraphic(soundImg);
 
         music.setOnAction(e ->{
             if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
@@ -933,7 +961,7 @@ public class BrickBreaker extends Application  {
         vsetting.setAlignment(Pos.TOP_CENTER);
         root.getChildren().addAll(mv,vBox);
 
-         introScene = new Scene(root, 1080, 720);
+        introScene = new Scene(root, 1080, 720);
 
     }
 
