@@ -13,12 +13,13 @@ public class Sounds {
     MediaPlayer advancedBallSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/GetAdvancedBall/bonus-points.mp3").toURI().toString()));
     MediaPlayer winningSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/Winning/Winning.mp3").toURI().toString()));
     MediaPlayer musicSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/musicSound.mp3").toURI().toString()));
+    MediaPlayer heartSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/breaking/glassBreaking.mp3").toURI().toString()));
     public Sounds(){
 
     }
 
-    public Media getButtonsMedia() {
-        return buttonsMedia;
+    public MediaPlayer getHeartSound() {
+        return heartSound;
     }
 
     public MediaPlayer getButtonsSound() {

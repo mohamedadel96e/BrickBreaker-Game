@@ -41,20 +41,5 @@ public class LoosingScene extends Pane{
     public Button getMenuButton() {
         return menuButton;
     }
-/*public void playAgain(Scene scene, Pane pane, MediaPlayer buttonsSound,boolean soundFlag,Paddle paddle,Ball ball)
-    {
-        playAgainButton.setOnAction(e -> {
-            scene.setRoot(pane);
-            if (buttonsSound.getStatus() == MediaPlayer.Status.PLAYING) {
-                buttonsSound.stop();
-                buttonsSound.seek(buttonsSound.getStartTime());
-            }
-            if (soundFlag)
-                buttonsSound.play();
 
-            scene.setRoot(pane);
-            paddle.setLayoutX(pane.getWidth() / 2 - paddle.getWidth() / 2);
-            ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
-        });
-    }*/
 }
