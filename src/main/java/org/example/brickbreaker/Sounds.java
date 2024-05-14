@@ -14,8 +14,13 @@ public class Sounds {
     MediaPlayer winningSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/Winning/Winning.mp3").toURI().toString()));
     MediaPlayer musicSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/musicSound.mp3").toURI().toString()));
     MediaPlayer heartSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/breaking/glassBreaking.mp3").toURI().toString()));
+    MediaPlayer fireSound = new MediaPlayer(new Media(new File("src/main/resources/org/example/brickbreaker/assets/fireSound.mp3").toURI().toString()));
     public Sounds(){
 
+    }
+
+    public MediaPlayer getFireSound() {
+        return fireSound;
     }
 
     public MediaPlayer getHeartSound() {
