@@ -6,7 +6,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -23,7 +22,7 @@ public class WinningScene extends Pane {
     private Button playAgainButton = new Button("Play Again");
     public Button menuButton = new Button("Menu");
     private HBox hBox = new HBox(30);
-    private Text winText = new Text("Don't play again");
+    private Text winText = new Text("Congratulations");
     private int numOfStars = 0;
     private ArrayList<Rectangle> stars = new ArrayList(0);
     public WinningScene()
@@ -47,7 +46,7 @@ public class WinningScene extends Pane {
     }
     public void drawStars(int score)
     {
-
+        stars.clear();
         if (score >= 150000)
             numOfStars = 3;
         else if (score >= 100000)

@@ -31,19 +31,21 @@ import java.util.ArrayList;
 public class BrickBreaker extends Application  {
 
     // Scene objects for the different game states
-    Scene introScene;
-    Stage stage;
-    Button menu = new Button("Menu");
-    Scene playingScene;
-    WinningScene winningScene = new WinningScene();
-    LoosingScene loosingScene = new LoosingScene();
+    Scene introScene; // intro page of the game
+    Stage stage;  // the window of the game
+    Button menu = new Button("Menu"); // menu button that retrun to intro scene from the pause page
+    Scene playingScene;// The scene that contain all the game logic
+    WinningScene winningScene = new WinningScene(); // a scene that shows after winning
+    LoosingScene loosingScene = new LoosingScene(); // a scene that shows after loosing
 
     // Background element
     BackGround outerRoot = new BackGround();
 
     // Ball objects
-    Ball ball = new Ball();
-    Ball advancedBall;
+    Ball ball = new Ball(); // the bouncing ball
+    Ball advancedBall; // a ball that when you take it makes advanced option
+
+    //A rectangle with orange color to show with low opacity when the ball is fired
     Rectangle fireRectangle = new Rectangle(1080,720,Color.ORANGE);
     boolean isAdvancedBallCreated = false;
 
@@ -61,8 +63,8 @@ public class BrickBreaker extends Application  {
     Button level2 = new Button("level 2");
     Button level3 = new Button("level 3");
 
-    // Container for settings and sound buttons
-    VBox vbox2 = new VBox();
+    // Container for settings and sound buttons in intro scene
+    VBox vboxPause = new VBox();
 
     // Flags for game settings
     boolean settingsOn;
@@ -73,12 +75,15 @@ public class BrickBreaker extends Application  {
 
     // Player lives
     int lives = 3;
+    // player lives as a Hearts
     ArrayList<Rectangle> numOfLives = new ArrayList<>(3);
 
     // Player score
     int score = 0;
+    // a variable that track the number of crashed bricks to make an advanced ball after 5 crashes
     int numCrashed = 0;
-    long timer = 0;
+    // a timer for the fire ball
+    int  timer = 0;
 
     // Current level
     int level;
@@ -86,7 +91,7 @@ public class BrickBreaker extends Application  {
     // Initial paddle size
     int paddleStartSize = 150;
 
-    // Flag to indicate if ball is attached to paddle
+    // Flag to indicate if ball is attached to paddle and if attached you must press the mouse to continue bouncing
     boolean ballIsTouched;
 
     // Robot class for mouse input
@@ -114,6 +119,7 @@ public class BrickBreaker extends Application  {
             movePaddle();
             //for detection of pause menu button
             playingScene.setOnKeyPressed(event -> {
+                // When you press space you can get the pause menu and turn back to game
                 if(event.getCode().equals(KeyCode.SPACE) )
                 {
                     if(playFlag){
@@ -122,7 +128,7 @@ public class BrickBreaker extends Application  {
                         pausePage();
                     }
                     else {
-                        outerRoot.getChildren().remove(vbox2);
+                        outerRoot.getChildren().remove(vboxPause);
                         playFlag = !playFlag;
                         timeline.play();
 
@@ -151,6 +157,7 @@ public class BrickBreaker extends Application  {
                 // moving The ball
                 ball.setLayoutX(ball.getLayoutX() + ball.getDeltaX());
                 ball.setLayoutY(ball.getLayoutY() + ball.getDeltaY());
+                // moving the advanced ball if it is exist
                 if(isAdvancedBallCreated)
                 {
                     advancedBall.setLayoutY(advancedBall.getLayoutY() + advancedBall.getDeltaY());
@@ -161,7 +168,7 @@ public class BrickBreaker extends Application  {
                 if (!bricks.isEmpty()) {
                     bricks.removeIf(brick -> checkCollisionBrick(brick));
                 }
-                // if bricks is empty so the player won and i should handle winning
+                // if bricks is empty so the player won and this condition should handle winning
                 else {
                     score += 50000 * lives;
                     lblScore.setText("SCORE: " + score);
@@ -173,14 +180,16 @@ public class BrickBreaker extends Application  {
                     }
                     if(soundFlag)
                         soundsOfGame.getWinningSound().play();
+                    // change the root of playing to the winning root
                     playingScene.setRoot(winningScene);
-                    System.out.println(score);
+                    // drawing stars depending on the score and lives and clear the previos page
                     winningScene.drawStars(score);
                     bricks.clear();
                     numOfLives.clear();
-                    vbox2.getChildren().clear();
+                    vboxPause.getChildren().clear();
                     playFlag = true;
                     outerRoot.getChildren().clear();
+                    // initializing a new game
                     initialize();
                     score = 0;
                     winningScene.playAgain(playingScene,outerRoot,soundsOfGame.getButtonsSound(),soundFlag,paddle,ball);
@@ -203,7 +212,7 @@ public class BrickBreaker extends Application  {
                         intro();
                         bricks.clear();
                         numOfLives.clear();
-                        vbox2.getChildren().clear();
+                        vboxPause.getChildren().clear();
                         playFlag = true;
                         stage.setScene(introScene);
                         playingScene.setRoot(new Pane());
@@ -213,7 +222,7 @@ public class BrickBreaker extends Application  {
                         playingScene.setRoot(outerRoot);
                         bricks.clear();
                         numOfLives.clear();
-                        vbox2.getChildren().clear();
+                        vboxPause.getChildren().clear();
                         playFlag = true;
                         if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                             soundsOfGame.getButtonsSound().stop();
@@ -244,6 +253,7 @@ public class BrickBreaker extends Application  {
                 checkCollisionBottomZone(ball);
             }
             else{
+                // making the ball attached to the paddle if the bricks is still existing
                 ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth()  / 2);
                 ball.setLayoutY(paddle.getLayoutY() - 10);
                 outerRoot.setOnMouseClicked(e ->
@@ -375,7 +385,7 @@ public class BrickBreaker extends Application  {
             // Clear game elements from previous game
             bricks.clear();
             numOfLives.clear();
-            vbox2.getChildren().clear();
+            vboxPause.getChildren().clear();
 
             // Reset game state flags
             playFlag = true;
@@ -547,7 +557,7 @@ public class BrickBreaker extends Application  {
             if(brick.getNumOfCrashes() <= 0)
             {
                 numCrashed++;
-                if(numCrashed % 5 == 0)
+                if(numCrashed % 5 == 0 && !isAdvancedBallCreated)
                 {
                     createAdvancedBall(brick);
                 }
@@ -636,7 +646,7 @@ public class BrickBreaker extends Application  {
                     intro();
                     bricks.clear();
                     numOfLives.clear();
-                    vbox2.getChildren().clear();
+                    vboxPause.getChildren().clear();
                     playFlag = true;
                     stage.setScene(introScene);
                     playingScene.setRoot(new Pane());
@@ -647,7 +657,7 @@ public class BrickBreaker extends Application  {
                     playingScene.setRoot(outerRoot);
                     bricks.clear();
                     numOfLives.clear();
-                    vbox2.getChildren().clear();
+                    vboxPause.getChildren().clear();
                     playFlag = true;
                     if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                         soundsOfGame.getButtonsSound().stop();
@@ -1087,8 +1097,8 @@ public class BrickBreaker extends Application  {
             timeline.play();
             playFlag = !playFlag;
             outerRoot.getChildren().remove(rectangle);
-            outerRoot.getChildren().remove(vbox2);
-            vbox2.getChildren().clear();
+            outerRoot.getChildren().remove(vboxPause);
+            vboxPause.getChildren().clear();
         });
         ImageView soundImg = new ImageView();
         soundImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
@@ -1166,12 +1176,12 @@ public class BrickBreaker extends Application  {
         music.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
         music.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
 
-        vbox2.getChildren().addAll(cont,sound,music,menu);
-        vbox2.setSpacing(10);
-        vbox2.setAlignment(Pos.CENTER);
-        vbox2.setLayoutX(outerRoot.getWidth() / 3 + 75);
-        vbox2.setLayoutY(outerRoot.getHeight() / 3);
-        outerRoot.getChildren().add(vbox2);
+        vboxPause.getChildren().addAll(cont,sound,music,menu);
+        vboxPause.setSpacing(10);
+        vboxPause.setAlignment(Pos.CENTER);
+        vboxPause.setLayoutX(outerRoot.getWidth() / 3 + 75);
+        vboxPause.setLayoutY(outerRoot.getHeight() / 3);
+        outerRoot.getChildren().add(vboxPause);
 
     }
     public static void main(String[] args) {
