@@ -415,196 +415,246 @@ public class BrickBreaker extends Application  {
 
     public void initialize()
     {
-        lives = 3;
-        score = 0;
-        numCrashed = 0;
-        isAdvancedBallCreated = false;
+        // Initialize game variables
+        lives = 3;  // Number of starting lives
+        score = 0;   // Starting score
+        numCrashed = 0;  // Number of bricks crashed to make an advanced ball every 5 crashes
+        isAdvancedBallCreated = false;  // Flag to track advanced ball creation
+
+        // Set paddle position and size
         paddle.setWidth(paddleStartSize);
-        paddle.setLayoutX(outerRoot.getPrefWidth() / 2 - paddle.getWidth() /2);
-        paddle.setLayoutY(outerRoot.getPrefHeight() - 50);
-        ball.setLayoutY(paddle.getLayoutY() - 15);
-        ball.setLayoutX(paddle.getLayoutX() +paddle.getWidth() / 2);
+        paddle.setLayoutX(outerRoot.getPrefWidth() / 2 - paddle.getWidth() / 2); // position at center
+        paddle.setLayoutY(outerRoot.getPrefHeight() - 50);  // Position paddle at the bottom
+
+        // Set ball position and size
+        ball.setLayoutY(paddle.getLayoutY() - 15);  // Position ball above paddle
+        ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
         ball.setRadius(12);
-        timeline.setCycleCount(Animation.INDEFINITE);
+
+        // Set animation loop properties
+        timeline.setCycleCount(Animation.INDEFINITE);  // Animation runs indefinitely
+
+        // Initialize score label
         lblScore.setText("SCORE: " + score);
         lblScore.setLayoutX(outerRoot.getPrefWidth() - 150);
         lblScore.setLayoutY(10);
-        lblScore.setFont(Font.font("Elephant",12));
+        lblScore.setFont(Font.font("Elephant", 12));
         lblScore.setTextFill(Color.BLACK);
         lblScore.setBackground(Background.fill(Color.WHITE));
-        bottomZone.setLayoutY(outerRoot.getPrefHeight() -20);
+
+        // Set bottom zone (representing game over zone)
+        bottomZone.setLayoutY(outerRoot.getPrefHeight() - 20);
         bottomZone.setLayoutX(0);
         bottomZone.setHeight(20);
         bottomZone.setWidth(outerRoot.getPrefWidth());
-        bottomZone.setFill(Color.TRANSPARENT);
-        startButton.setBackground(Background.EMPTY);
+        bottomZone.setFill(Color.TRANSPARENT);  // Make it invisible initially
+
+        // Set start button appearance
         ImageView startButtonImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\play.png"));
-        startButton.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,15));
-        startButton.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
-        startButton.setGraphic(startButtonImg);
+        startButton.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC, 15)); // Set custom font style
+        startButton.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink"); // Set rounded corners, padding, and text color
+        startButton.setGraphic(startButtonImg);  // Set the play button image
         startButtonImg.setFitWidth(20);
         startButtonImg.setFitHeight(20);
         startButton.setPrefWidth(100);
         startButton.setPrefHeight(50);
-        startButton.setLayoutX(outerRoot.getPrefWidth() / 2 - startButton.getPrefWidth() + 30);
-        startButton.setLayoutY((outerRoot.getPrefHeight() / 2) - startButton.getPrefHeight());
+        startButton.setLayoutX(outerRoot.getPrefWidth() / 2 - startButton.getPrefWidth() + 30);  // Center the button horizontally with some offset
+        startButton.setLayoutY((outerRoot.getPrefHeight() / 2) - startButton.getPrefHeight());  // Center the button vertically
         startButton.setVisible(true);
-        outerRoot.getChildren().addAll(paddle,ball,lblScore,bottomZone,startButton);
+
+        // Add game elements to the scene
+        outerRoot.getChildren().addAll(paddle, ball, lblScore, bottomZone, startButton);
+
+        // Draw initial lives on the screen
         drawLives(lives);
+
+        // Set fire rectangle (used for visual effects) to be invisible initially
         fireRectangle.setOpacity(0);
-        int random = (((int) (Math.random() * 100)) %  4);
-        if(random >= 2)
-        {
+
+        // Randomly determine initial ball direction (left or right)
+        int random = (((int) (Math.random() * 100)) % 4);
+        if (random >= 2) {
             ball.setDeltaX(-Math.random() * 4);
             ball.setDeltaY(-4);
-        }
-        else {
+        } else {
             ball.setDeltaX(Math.random() * 4);
             ball.setDeltaY(-4);
         }
-
     }
-    private void startGame()
-    {
-        createBricks();
-        timeline.play();
-
+    private void startGame() {
+        createBricks();  // Creates the brick layout for the level
+        timeline.play();  // Starts the animation loop
     }
-    public void drawLives(int lives)
-    {
-        for(int i = 0; i < lives; i++)
-        {
-            numOfLives.add(new Rectangle(40 * i + 10,10,30,30));
-            numOfLives.get(i).toBack();
-            numOfLives.get(i).setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\heart.png")));
-
-            outerRoot.getChildren().add(numOfLives.get(i));
-
+    public void drawLives(int lives) {
+        for (int i = 0; i < lives; i++) {
+            numOfLives.add(new Rectangle(40 * i + 10, 10, 30, 30));  // Create a rectangle for each life
+            numOfLives.get(i).toBack();  // Send the life rectangle behind other elements
+            numOfLives.get(i).setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\heart.png")));  // Set the life icon (heart image)
+            outerRoot.getChildren().add(numOfLives.get(i));  // Add the life Image to the scene
         }
-
     }
     public void movePaddle() {
-        Bounds bounds = outerRoot.localToScreen(outerRoot.getBoundsInLocal());
+        Bounds bounds = outerRoot.localToScreen(outerRoot.getBoundsInLocal());  // Get scene bounds
         double sceneXPos = bounds.getMinX();
 
-        double xPos = robot.getMouseX();
-        double paddleWidth = paddle.getWidth();
+        double xPos = robot.getMouseX();  // Get mouse X position
+        double paddleWidth = paddle.getWidth();  // Get paddle width
 
         if (xPos >= sceneXPos + (paddleWidth / 2) && xPos <= (sceneXPos + outerRoot.getWidth()) - (paddleWidth / 2)) {
-            paddle.setLayoutX(xPos - sceneXPos - (paddleWidth / 2));
+            paddle.setLayoutX(xPos - sceneXPos - (paddleWidth / 2));  // Move paddle based on mouse X while keeping it within scene bounds
         } else if (xPos < sceneXPos + (paddleWidth / 2)) {
-            paddle.setLayoutX(0);
+            paddle.setLayoutX(0);  // Restrict paddle movement to scene bounds (left edge)
         } else if (xPos > (sceneXPos + outerRoot.getWidth()) - (paddleWidth / 2)) {
-            paddle.setLayoutX(outerRoot.getWidth() - paddleWidth);
+            paddle.setLayoutX(outerRoot.getWidth() - paddleWidth);  // Restrict paddle movement to scene bounds (right edge)
         }
     }
+    // Checks for ball collisions with walls and bounces accordingly
     private void checkBorders(boolean rightBorder, boolean leftBorder, boolean bottomBorder, boolean topBorder) {
-        if (rightBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() < 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1);
-        } else if (leftBorder  && !(topBorder || bottomBorder) && ball.getDeltaX() > 0) {
-            ball.setDeltaX(ball.getDeltaX() * -1);
+        if (rightBorder && !(topBorder || bottomBorder) && ball.getDeltaX() < 0) {
+            ball.setDeltaX(ball.getDeltaX() * -1);  // Bounce the ball if it hits the right wall (except corners)
+        } else if (leftBorder && !(topBorder || bottomBorder) && ball.getDeltaX() > 0) {
+            ball.setDeltaX(ball.getDeltaX() * -1);  // Bounce the ball if it hits the left wall (except corners)
         }
-        if (rightBorder  && (topBorder || bottomBorder) && ball.getDeltaX() < 0) {
+        if (rightBorder && (topBorder || bottomBorder) && ball.getDeltaX() < 0) {
             ball.setDeltaX(ball.getDeltaX() * -1);
-            ball.setDeltaY(ball.getDeltaY() * -1);
-        } else if (leftBorder  && (topBorder || bottomBorder) && ball.getDeltaX() > 0) {
+            ball.setDeltaY(ball.getDeltaY() * -1);  // Bounce the ball if it hits a corner (right + top/bottom)
+        } else if (leftBorder && (topBorder || bottomBorder) && ball.getDeltaX() > 0) {
             ball.setDeltaX(ball.getDeltaX() * -1);
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);  // Bounce the ball if it hits a corner (left + top/bottom)
         }
         if (bottomBorder && ball.getDeltaY() < 0) {
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);  // Bounce the ball if it hits the bottom wall
         } else if (topBorder && ball.getDeltaY() > 0) {
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);  // Bounce the ball if it hits the top wall
         }
     }
+    // Checks for ball collision with the paddle and adjusts its bounce angle based on the contact point
     public void checkCollisionPaddle(Paddle paddle) {
-
         if (ball.getBoundsInParent().intersects(paddle.getBoundsInParent())) {
-
+            // Calculate relative X-axis intersection point (offset from paddle center)
             double relativeIntersectX = (ball.getLayoutX() + ball.getRadius()) - (paddle.getLayoutX() + paddle.getWidth() / 2);
+
+            // Normalize relative intersection based on paddle width (-1 to 1)
             double normalizedIntersectX = relativeIntersectX / (paddle.getWidth() / 2);
-            double bounceAngle = normalizedIntersectX * Math.PI / 3; // Maximum bounce angle
-            ball.setDeltaX( Math.sin(bounceAngle) * 4);
+
+            // Calculate bounce angle based on normalized intersection (maximum angle PI/3)
+            double bounceAngle = normalizedIntersectX * Math.PI / 3;
+
+            // Update ball's deltaX and deltaY based on bounce angle and constant speed factor
+            ball.setDeltaX(Math.sin(bounceAngle) * 4);
             ball.setDeltaY(-Math.cos(bounceAngle) * 4);
-
-
         }
-
     }
+    // Checks for ball collision with a brick and handles various actions
     public boolean checkCollisionBrick(Brick brick) {
 
-        if (ball.getBoundsInParent().intersects(brick.getBoundsInParent()) ) {
-            if(ball.isFire()){
+        // Check for collision between ball and brick bounding boxes
+        if (ball.getBoundsInParent().intersects(brick.getBoundsInParent())) {
+
+            // Special case for fire ball (instant destroy)
+            if (ball.isFire()) {
                 score += 500;
                 lblScore.setText("SCORE: " + score);
-                outerRoot.getChildren().remove(brick);
-                return true;
+                outerRoot.getChildren().remove(brick);  // Remove brick immediately
+                return true;  // Collision detected
             }
+
+            // Check collision with each brick wall
             boolean rightBorder = ball.getLayoutX() >= ((brick.getX() + brick.getWidth()) - ball.getRadius());
             boolean leftBorder = ball.getLayoutX() <= (brick.getX() + ball.getRadius());
             boolean bottomBorder = ball.getLayoutY() >= ((brick.getY() + brick.getHeight()) - ball.getRadius());
             boolean topBorder = ball.getLayoutY() <= (brick.getY() + ball.getRadius());
+
+            // Delegate wall collision checks to separate function
             checkBorders(rightBorder, leftBorder, bottomBorder, topBorder);
+
+            // Reduce brick's health (number of crashes)
             brick.setNumOfCrashes(brick.getNumOfCrashes() - 1);
-            if(soundsOfGame.getBreakingSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
-                soundsOfGame.getBreakingSound().seek(soundsOfGame.getBreakingSound().getStartTime());
+
+            // Play breaking sound if not already playing and sound is enabled
+            if (soundsOfGame.getBreakingSound().getStatus() == MediaPlayer.Status.PLAYING) {
+                soundsOfGame.getBreakingSound().seek(soundsOfGame.getBreakingSound().getStartTime());  // Reset sound if already playing
             }
-            if(soundFlag){
+            if (soundFlag) {
                 soundsOfGame.getBreakingSound().play();
             }
 
-            if(brick.getNumOfCrashes() <= 0)
-            {
-                numCrashed++;
-                if(numCrashed % 5 == 0 && !isAdvancedBallCreated)
-                {
+            // Check if brick is destroyed
+            if (brick.getNumOfCrashes() <= 0) {
+                numCrashed++;  // Increment number of crashed bricks
+
+                // Create advanced ball on specific intervals (if not already created)
+                if (numCrashed % 5 == 0 && !isAdvancedBallCreated) {
                     createAdvancedBall(brick);
                 }
+
                 score += 500;
                 lblScore.setText("SCORE: " + score);
-                outerRoot.getChildren().remove(brick);
-                return true;
+                outerRoot.getChildren().remove(brick);  // Remove destroyed brick
+                return true;  // Collision detected and brick destroyed
+            } else {
+                return false;  // Collision detected but brick not destroyed
             }
-            else
-                return false;
         }
-        return false;
+
+        return false;  // No collision
     }
+    // Checks for ball collision with the scene boundaries (walls)
     public void checkCollisionScene(Node node) {
+        // Get the scene node's bounding box in local coordinates
         Bounds bounds = node.getBoundsInLocal();
-        boolean rightBorder = ball.getLayoutX() >= (bounds.getMaxX() - ball.getRadius() - 3 );
+
+        // Calculate adjusted border positions considering ball radius and a small buffer
+        boolean rightBorder = ball.getLayoutX() >= (bounds.getMaxX() - ball.getRadius() - 3);
         boolean leftBorder = ball.getLayoutX() <= (bounds.getMinX() + ball.getRadius() + 3);
         boolean bottomBorder = ball.getLayoutY() >= (bounds.getMaxY() - ball.getRadius() - 3);
         boolean topBorder = ball.getLayoutY() <= (bounds.getMinY() + ball.getRadius() + 3);
 
+        // Handle ball bounces on horizontal walls
         if (rightBorder || leftBorder) {
-            ball.setDeltaX(ball.getDeltaX() * -1);
+            ball.setDeltaX(ball.getDeltaX() * -1);  // Invert ball's horizontal movement (bounce)
         }
+
+        // Handle ball bounces on vertical walls (top and bottom)
         if (bottomBorder || topBorder) {
-            ball.setDeltaY(ball.getDeltaY() * -1);
+            ball.setDeltaY(ball.getDeltaY() * -1);  // Invert ball's vertical movement (bounce)
         }
     }
+
+    // Handles ball collision with the bottom zone (usually representing game over area)
     public void checkCollisionBottomZone(Ball ball) {
         if (ball.getBoundsInParent().intersects(bottomZone.getBoundsInParent())) {
-            if(soundsOfGame.getHeartSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
-                soundsOfGame.getHeartSound().stop();
-                soundsOfGame.getHeartSound().seek(soundsOfGame.getHeartSound().getStartTime());
-            }
-            if(soundFlag && lives > 1)
-                soundsOfGame.getHeartSound().play();
-            lives--;
-            for(Rectangle live:numOfLives)
-                outerRoot.getChildren().remove(live);
-            numOfLives.clear();
-            drawLives(lives);
 
-            if (lives > 0) {
+            // Play heart sound if lives are greater than 1 and sound is enabled
+            if (lives > 1 && soundFlag) {
+                if (soundsOfGame.getHeartSound().getStatus() == MediaPlayer.Status.PLAYING) {
+                    soundsOfGame.getHeartSound().stop();  // Stop any ongoing heart sound
+                    soundsOfGame.getHeartSound().seek(soundsOfGame.getHeartSound().getStartTime());  // Reset sound to beginning
+                }
+                soundsOfGame.getHeartSound().play();  // Play heart sound to indicate life loss
+            }
+
+            // Decrement lives and update lives display
+            lives--;
+            for (Rectangle live : numOfLives) {
+                outerRoot.getChildren().remove(live);  // Remove live icon from scene
+            }
+            numOfLives.clear();  // Clear the list of life icons
+            drawLives(lives);  // Update the number of lives displayed
+
+            // Handle game over or life loss scenario
+            if (lives > 0) { // Life loss but not game over
+
                 ballIsTouched = true;
+
+                // Reset ball position to center of paddle
                 ball.setLayoutX(paddle.getLayoutX());
                 ball.setLayoutY(paddle.getLayoutY());
+
+                // Remove advanced ball if it exists
                 outerRoot.getChildren().remove(advancedBall);
+
+                // Update paddle position based on mouse position (similar to movePaddle)
                 Bounds bounds = outerRoot.localToScreen(outerRoot.getBoundsInLocal());
                 double sceneXPos = bounds.getMinX();
                 double xPos = robot.getMouseX();
@@ -618,56 +668,77 @@ public class BrickBreaker extends Application  {
                     paddle.setLayoutX(outerRoot.getWidth() - paddleWidth);
                 }
 
-                if ((((int) (Math.random() * 100)) % 4) >= 2) {
+                // Randomly set ball's initial horizontal movement direction after reset
+                if (((int) (Math.random() * 100)) % 4 >= 2) {
                     ball.setDeltaX(-Math.random() * 4);
                     ball.setDeltaY(-4);
                 } else {
                     ball.setDeltaX(Math.random() * 4);
                     ball.setDeltaY(-4);
                 }
-            } else {
 
+            } else { // Game Over
+
+                // Stop animation timeline
                 timeline.stop();
+
+                // Switch scene to losing scene
                 playingScene.setRoot(loosingScene);
-                loosingScene.getMenuButton().setOnAction( e ->{
-                    if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
-                    {
-                        soundsOfGame.getButtonsSound().stop();
-                        soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
-                    }
-                    if(soundFlag)
+
+                // Add action listener to Menu button in losing scene
+                loosingScene.getMenuButton().setOnAction(e -> {
+                    // Play button sound if enabled and stop/reset any ongoing button sound
+                    if (soundFlag) {
+                        if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
+                            soundsOfGame.getButtonsSound().stop();
+                            soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
+                        }
                         soundsOfGame.getButtonsSound().play();
-                    if(levelsOn)
-                    {
-                        levelsOn = false;
                     }
-                    if(settingsOn)
-                        settingsOn = false;
+
+                    // Reset game settings
+                    levelsOn = false;
+                    settingsOn = false;
                     intro();
                     bricks.clear();
                     numOfLives.clear();
                     vboxPause.getChildren().clear();
                     playFlag = true;
                     stage.setScene(introScene);
-                    playingScene.setRoot(new Pane());
-                    outerRoot = new BackGround();
+                    playingScene.setRoot(new Pane());  // Clear playing scene's root node
+                    outerRoot = new BackGround();  // Create new background
+
+                    // Back to intro scene
                 });
 
-                loosingScene.getPlayAgainButton().setOnAction(e ->{
+                // Add action listener to Play Again button in losing scene
+                loosingScene.getPlayAgainButton().setOnAction(e -> {
+                    // Switch back to playing scene
                     playingScene.setRoot(outerRoot);
+
+                    // Clear game elements
                     bricks.clear();
                     numOfLives.clear();
-                    vboxPause.getChildren().clear();
-                    playFlag = true;
+
+                    // Reset game for "Play Again" scenario
+                    vboxPause.getChildren().clear();  // Clear any elements from the pause menu (vboxPause)
+                    playFlag = true;  // Reset play flag (likely used to control game loop)
+
+                    // Stop/reset any ongoing button sound if enabled
                     if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                         soundsOfGame.getButtonsSound().stop();
                         soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
                     }
                     if (soundFlag)
-                        soundsOfGame.getButtonsSound().play();
+                        soundsOfGame.getButtonsSound().play();  // Play button sound if enabled
+
+                    // Reset paddle position to center of the scene
                     paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);
+
+                    // Reset ball position next to centered paddle
                     ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
 
+                    // Randomly set ball's initial horizontal movement direction
                     if (((int) (Math.random() * 100)) % 4 >= 2) {
                         ball.setDeltaX(-Math.random() * 4);
                         ball.setDeltaY(-4);
@@ -675,57 +746,80 @@ public class BrickBreaker extends Application  {
                         ball.setDeltaX(Math.random() * 4);
                         ball.setDeltaY(-4);
                     }
-                    ball.setLayoutX(paddle.getLayoutX() + paddle.getWidth() / 2);
+
+                    // Set initial ball position slightly below the paddle
                     ball.setLayoutY(paddle.getLayoutY() - 10);
+
+                    // Clear all children (game elements) from the main scene group (outerRoot)
                     outerRoot.getChildren().clear();
+
+                    // Call the initialize() method to reset the game (likely creates bricks etc.)
                     initialize();
                 });
-                if(soundsOfGame.getGameOverSound().getStatus() == MediaPlayer.Status.PLAYING)
-                {
-                    soundsOfGame.getGameOverSound().stop();
-                    soundsOfGame.getGameOverSound().seek(soundsOfGame.getGameOverSound().getStartTime());
+                // Stop "Game Over" Sound (Optional)
+                if(soundsOfGame.getGameOverSound().getStatus() == MediaPlayer.Status.PLAYING) {
+                    soundsOfGame.getGameOverSound().stop();  // Stop the "Game Over" sound if it's playing
+                    soundsOfGame.getGameOverSound().seek(soundsOfGame.getGameOverSound().getStartTime());  // Reset the sound to the beginning
                 }
+                // Play "Game Over" Sound
                 if(soundFlag)
-                    soundsOfGame.getGameOverSound().play();
-                outerRoot.getChildren().remove(advancedBall);
-                bricks.forEach(brick -> outerRoot.getChildren().remove(brick));
-                bricks.clear();
-                startButton.setVisible(true);
-                score = 0;
-                lives = 3;
-                paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);
+                    soundsOfGame.getGameOverSound().play();  // Play the "Game Over" sound if sound effects are enabled
 
-                System.out.println("Game over!");
+                // Remove Advanced Ball
+                if(isAdvancedBallCreated)
+                    outerRoot.getChildren().remove(advancedBall);  // Remove the "advanced ball" (if it exists) from the scene
+
+                // Remove Bricks
+                bricks.forEach(brick -> outerRoot.getChildren().remove(brick));  // Remove each brick from the scene
+                bricks.clear();  // Clear the list of bricks
+
+                // Show Start Button
+                startButton.setVisible(true);  // Make the "Start" button visible again
+
+                // Reset Score to zero
+                score = 0;
+
+                // Reset the number of lives to 3
+                lives = 3;
+
+                // Center Paddle
+                paddle.setLayoutX(outerRoot.getWidth() / 2 - paddle.getWidth() / 2);  // Position the paddle back in the center
             }
 
         }
     }
+    // Generate random number from 1 to 3 represents Number of crashes of bricks
     private int random1To3()
     {
         return (((int)(Math.random() * 100)) % 3) + 1;
     }
-    public void createBricks()
-    {
-        Brick brick;
-        double width = outerRoot.getPrefWidth();
-        double height = outerRoot.getPrefHeight();
-        double space = 15;
-        int numOfBricksInRow = 10;
-        int numOfBrickInColumn = 5;
+    public void createBricks() {
+        // Variables used for brick creation
+        Brick brick;  // Represents a single brick object as a buffer
+        double width = outerRoot.getPrefWidth();  // Get the scene's preferred width
+        double height = outerRoot.getPrefHeight();  // Get the scene's preferred height
+        double space = 15;  // Space between bricks
+        int numOfBricksInRow = 10;  // Number of bricks in a row
+        int numOfBrickInColumn = 5;  // Number of brick columns
+
+        // Calculate individual brick width based on scene size and number of bricks
         double brickWidth = (outerRoot.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
-        double brickHeight = brickWidth * 0.5;
+        double brickHeight = brickWidth * 0.5;  // Set brick height to half the width because of the photo i have 2 * 1
+
+        // Counter variable for number of brick columns created
         int columnCount = 0;
-        switch (level)
-        {
+
+        // Switch statement to handle different level layouts
+        switch (level) {
             case 1:
-                for(double i = lblScore.getLayoutY() + lblScore.getHeight() * 3; i < height * 0.6;i = i + brickHeight + space)
-                {
-                    if(columnCount >= numOfBrickInColumn)
-                    {
+                // Level 1: Brick rectangle formation
+                for (double i = lblScore.getLayoutY() + lblScore.getHeight() * 3; i < height * 0.6; i = i + brickHeight + space) {
+                    if (columnCount >= numOfBrickInColumn) {
                         break;
                     }
                     for (double j = 10; j < width - 10; j = j + brickWidth + space) {
 
+                        // Create a brick with random health (1-3) except for the last column (health = 1) and before last (health = 2)
                         brick = switch (columnCount) {
                             case 4 ->
                                     new Brick(j, i, brickWidth, brickHeight, 1);
@@ -735,50 +829,73 @@ public class BrickBreaker extends Application  {
                                     new Brick(j, i, brickWidth, brickHeight, random1To3());
                         };
 
+                        // Add the brick to the scene and the list of bricks
                         outerRoot.getChildren().add(brick);
                         bricks.add(brick);
                     }
-                    columnCount++;
+                    columnCount++;//increment the bricks column created
                 }
                 break;
             case 2:
-                int bricksTriangle = 5;
-                brickWidth = (width / 2 - bricksTriangle * space)  / bricksTriangle;
-                int rowCount = 0;
-                for(double i = lblScore.getLayoutY() + lblScore.getHeight() * 3; (i < height * 0.6) && columnCount < bricksTriangle;i = i + brickWidth / 2 + space)
-                {
-                    for(double j = 10; (j < width / 2) && rowCount <= columnCount ; j = j + brickWidth + space)
-                    {
+                // Level 2: Brick triangle formation on each half of the scene
+                int bricksTriangle = 5;  // Number of rows in each triangle
+
+                // Calculate adjusted brick width to fit the triangle formation within half the scene width
+                brickWidth = (width / 2 - bricksTriangle * space) / bricksTriangle;
+
+                // Loop to create bricks for the left triangle
+                int rowCount = 0;  // Counter for the number of bricks in a row (reset for each row)
+                for (double i = lblScore.getLayoutY() + lblScore.getHeight() * 3;
+                     (i < height * 0.6) && columnCount < bricksTriangle;
+                     i = i + brickWidth / 2 + space) {
+                    for (double j = 10; (j < width / 2) && rowCount <= columnCount; j = j + brickWidth + space) {
                         rowCount++;
-                        brick =switch (columnCount)
-                        {
-                            case 4 ->  new Brick(j, i, brickWidth, brickWidth / 2,1);
-                            default -> new Brick(j, i, brickWidth, brickWidth / 2, random1To3());
+
+                        // Create a brick with health 1 for the last row of the triangle
+                        brick = switch (columnCount) {
+                            case 4 ->
+                                    new Brick(j, i, brickWidth, brickWidth / 2, 1);
+                            default ->
+                                    new Brick(j, i, brickWidth, brickWidth / 2, random1To3());
                         };
+
+                        // Add the brick to the scene and the list of bricks
                         outerRoot.getChildren().add(brick);
                         bricks.add(brick);
                     }
-                    rowCount = 0;
-                    columnCount++;
+                    rowCount = 0;  // Reset the row counter for the next row
+                    columnCount++;  // Increment the column counter after completing a row
                 }
+
+                // Reset counters for the right triangle
                 columnCount = 0;
-                for(double i = lblScore.getLayoutY() + lblScore.getHeight() * 3; (i < height * 0.6) && columnCount < bricksTriangle;i = i + brickWidth / 2 + space)
-                {
+
+                // Loop to create bricks for the right triangle (mirrored from the left)
+                for (double i = lblScore.getLayoutY() + lblScore.getHeight() * 3;
+                     (i < height * 0.6) && columnCount < bricksTriangle;
+                     i = i + brickWidth / 2 + space) {
                     columnCount++;
-                    for(double j = outerRoot.getPrefWidth() - 10 - brickWidth; (j > width / 2) && rowCount < columnCount ; j = j - brickWidth - space)
-                    {
+                    for (double j = outerRoot.getPrefWidth() - 10 - brickWidth;
+                         (j > width / 2) && rowCount < columnCount;
+                         j = j - brickWidth - space) {
                         rowCount++;
-                        brick =switch (columnCount)
-                        {
-                            case 5 ->  new Brick(j, i, brickWidth, brickWidth / 2,1);
-                            default -> new Brick(j, i, brickWidth, brickWidth / 2, random1To3());
+
+                        // Create a brick with health 1 for the last row of the triangle
+                        brick = switch (columnCount) {
+                            case 5 ->
+                                    new Brick(j, i, brickWidth, brickWidth / 2, 1);
+                            default ->
+                                    new Brick(j, i, brickWidth, brickWidth / 2, random1To3());
                         };
+
+                        // Add the brick to the scene and the list of bricks
                         outerRoot.getChildren().add(brick);
                         bricks.add(brick);
                     }
-                    rowCount = 0;
+                    rowCount = 0;  // Reset the row counter for the next row
                 }
                 break;
+             // Level 3: Not implemented yet
             case 3:
                 break;
 
@@ -786,13 +903,15 @@ public class BrickBreaker extends Application  {
     }
     private  void intro()
     {
+        // Create buttons for the intro scene
         Button levels = new Button("Levels");
         Button setting = new Button("Setting");
         ImageView exitImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\logout.png"));
         exitImg.fitHeightProperty().bind(setting.prefHeightProperty().multiply(1));
         exitImg.fitWidthProperty().bind(exitImg.fitHeightProperty());
-        Button exit = new Button("Exit",exitImg);
+        Button exit = new Button("Exit", exitImg);  // Create exit button with image
 
+        // Create image views for settings and sound buttons
         ImageView settingsImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\setting.png"));
         settingsImg.fitHeightProperty().bind(setting.prefHeightProperty().multiply(1));
         settingsImg.fitWidthProperty().bind(settingsImg.fitHeightProperty());
@@ -806,66 +925,72 @@ public class BrickBreaker extends Application  {
         ImageView musicImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
         musicImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
         musicImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
-        if(!soundFlag)
-        {
+        // Update sound and music icons based on soundFlag and musicFlag
+
+        // Set sound icon based on sound flag
+        if (!soundFlag) {
             soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
-        }
-        else{
+        } else {
             soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
         }
-        if(!musicFlag)
-        {
-            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
 
-        }
-        else{
+        // Set music icon based on music flag (similar logic as sound)
+        if (!musicFlag) {
+            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+        } else {
             musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
         }
-        sound.setOnAction(e ->{
-            if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
+
+        // Action handler for sound button - toggles sound and icon
+        sound.setOnAction(e -> {
+            // Handle cases when the game is paused
+            if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                 soundsOfGame.getButtonsSound().stop();
                 soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
             }
-            if(soundFlag)
-                soundsOfGame.getButtonsSound().play();
-            if(soundFlag)
-            {
-                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
 
-                sound.setGraphic(soundImg);
-                soundFlag = !soundFlag;
+            // Play sound if sound is on
+            if (soundFlag) {
+                soundsOfGame.getButtonsSound().play();
             }
-            else{
-                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
-                sound.setGraphic(soundImg);
-                soundFlag = !soundFlag;
-            }
+
+            // Toggle sound flag and update icon based on the new flag state
+            soundFlag = !soundFlag;
+
+            // Update sound icon directly in action handler
+            soundImg.setImage(soundFlag ? new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png") : new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
         });
+
+        // Set initial sound button icon
         sound.setGraphic(soundImg);
 
-        music.setOnAction(e ->{
-            if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
+        music.setOnAction(e -> {
+            // Handle cases when the game is paused (same logic as sound button)
+            if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                 soundsOfGame.getButtonsSound().stop();
                 soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
             }
-            if(soundFlag)
+
+            // Play button sound if sound is on (prevents double play on music toggle)
+            if (soundFlag) {
                 soundsOfGame.getButtonsSound().play();
-            if(musicFlag)
-            {
+            }
+
+            // Toggle music flag and update icon based on the new flag state
+            if (musicFlag) {
+                // Music is currently on, so pause it
                 soundsOfGame.getMusicSound().pause();
                 musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
                 music.setGraphic(musicImg);
-                musicFlag = !musicFlag;
-            }
-            else{
+            } else {
+                // Music is currently off, so play it
                 soundsOfGame.getMusicSound().play();
                 musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
                 music.setGraphic(musicImg);
-                musicFlag = !musicFlag;
             }
+            musicFlag = !musicFlag;
         });
+        // set initialize music button icon
         music.setGraphic(musicImg);
 
         levels.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
@@ -877,37 +1002,52 @@ public class BrickBreaker extends Application  {
         level2.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
         level3.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink");
 
+        // Initially hide level and sound buttons
         level1.setVisible(false);
         level2.setVisible(false);
         level3.setVisible(false);
         sound.setVisible(false);
         music.setVisible(false);
 
+        // Action handler for levels button - toggles level visibility
         levels.setOnAction(event -> {
-            if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
+            // Handle cases when the game is paused (same logic as sound and music buttons)
+            if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                 soundsOfGame.getButtonsSound().stop();
                 soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
             }
-            if(soundFlag)
+
+            // Play button sound if sound is on (prevents double play)
+            if (soundFlag) {
                 soundsOfGame.getButtonsSound().play();
+            }
+
+            // Toggle levels visibility flag and update level buttons
             levelsOn = !levelsOn;
             level1.setVisible(levelsOn);
             level2.setVisible(levelsOn);
             level3.setVisible(levelsOn);
         });
+
+        // Action handler for settings button - toggles sound/music visibility
         setting.setOnAction(event -> {
-            if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
+            if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                 soundsOfGame.getButtonsSound().stop();
                 soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
             }
-            if(soundFlag)
+
+            // Play button sound if sound is on (prevents double play)
+            if (soundFlag) {
                 soundsOfGame.getButtonsSound().play();
+            }
+
+            // Toggle settings visibility flag and update sound/music buttons visibility
             settingsOn = !settingsOn;
             sound.setVisible(settingsOn);
             music.setVisible(settingsOn);
         });
+
+        // Action handler for exit button - closes the stage
         exit.setOnAction(event -> {
             Stage stage = (Stage) exit.getScene().getWindow();
             stage.close();
@@ -923,39 +1063,56 @@ public class BrickBreaker extends Application  {
         level3.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
 
 
+        // Create the root container for the scene
         StackPane root = new StackPane();
+
+        // Create a VBox for centered layout of instruction label and grid
         VBox vBox = new VBox(50);
+        vBox.setAlignment(Pos.CENTER);
+
+        // Create a GridPane for level selection, settings, and exit buttons
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
-        vBox.setAlignment(Pos.CENTER);
+
+        // Configure instruction label
         Label lblInstruction = new Label("Mouse To Move and Press Space To pause");
         lblInstruction.setFont(Font.font("DejaVu Math TeX Gyre"));
         lblInstruction.setTextFill(Color.WHITE);
-        lblInstruction.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,25));
+        lblInstruction.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC, 25));
         lblInstruction.setUnderline(true);
-        vBox.getChildren().addAll(lblInstruction,grid);
 
-        setting.setGraphic(settingsImg);
-        setting.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC,20));
+        // Add instruction label and grid to the VBox
+        vBox.getChildren().addAll(lblInstruction, grid);
 
-        Image m = new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\introBG.jpg");
-        ImageView mv = new ImageView(m);
-        mv.fitHeightProperty().bind(root.heightProperty());
-        mv.fitWidthProperty().bind(root.widthProperty());
+        // Set graphic and font for settings button
+        setting.setGraphic(settingsImg); // Assuming settingsImg is an ImageView containing the settings icon
+        setting.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC, 20));
 
+        // Create background image
+        Image introImage = new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\introBG.jpg");
+        ImageView introImageView = new ImageView(introImage);
 
+        // Bind background image to fit the scene size
+        introImageView.fitHeightProperty().bind(root.heightProperty());
+        introImageView.fitWidthProperty().bind(root.widthProperty());
+
+        // Create VBoxes for level selection
         VBox vlevels = new VBox();
-        vlevels.getChildren().addAll(level1,level2,level3);
+        vlevels.getChildren().addAll(level1, level2, level3); // level1, level2, level3 are buttons
 
+        // Bind vlevels height to grid height
         vlevels.prefHeightProperty().bind(grid.prefHeightProperty());
 
+        // Set spacing between buttons in vlevels
         vlevels.setSpacing(10);
 
         VBox vsetting = new VBox();
-        vsetting.getChildren().addAll(sound,music);
+        vsetting.getChildren().addAll(sound, music); //sound and music are buttons
 
+        // Set spacing between buttons in vsetting
         vsetting.setSpacing(10);
 
+        // Set preferred sizes for buttons based on scene dimensions
         levels.prefHeightProperty().bind(root.heightProperty().divide(20));
         levels.prefWidthProperty().bind(root.widthProperty().divide(7));
 
@@ -980,87 +1137,129 @@ public class BrickBreaker extends Application  {
         exit.prefHeightProperty().bind(root.heightProperty().divide(20));
         exit.prefWidthProperty().bind(root.widthProperty().divide(7));
 
+        // Set spacing between elements in the grid
         grid.setVgap(10);
         grid.setHgap(10);
-        grid.add(levels, 0, 0);
-        grid.add(setting, 1, 0);
-        grid.add(exit, 2, 0);
-        grid.add(vlevels, 0, 1);
-        grid.add(vsetting, 1, 1);
+
+        // Add buttons and VBoxes to the grid with specific positioning
+        grid.add(levels, 0, 0); // Levels button at row 0, column 0
+        grid.add(setting, 1, 0); // Settings button at row 0, column 1
+        grid.add(exit, 2, 0);   // Exit button at row 0, column 2
+        grid.add(vlevels, 0, 1);  // Level selection VBox at row 1, column 0 (likely hidden initially)
+        grid.add(vsetting, 1, 1); // Sound/music buttons VBox at row 1, column 1 (likely hidden
+
         vlevels.setAlignment(Pos.CENTER);
         vsetting.setAlignment(Pos.TOP_CENTER);
-        root.getChildren().addAll(mv,vBox);
+        root.getChildren().addAll(introImageView,vBox);
 
         introScene = new Scene(root, 1080, 720);
 
     }
 
-    private void createAdvancedBall(Brick brick)
-    {
+    // Creates an "advanced ball" based on a broken brick
+    private void createAdvancedBall(Brick brick) {
+        // Calculate initial position for the advanced ball
         advancedBall = new Ball(brick.getX() + brick.getWidth() / 2,brick.getY() + brick.getHeight() + brick.getWidth() * 0.2,ball.getRadius() +3);
-        if(lives < 5) {
+
+        // Determine advanced ball type based on lives remaining
+        if (lives < 5) {
+            // If lives are low, randomly choose type (0 or 1)
             advancedBall.setAdvancedBallType((int) (Math.random() * 100 % 2));
-        }
-        else{
+        } else {
+            // If lives are high, set type to 1 (Fire ball only)
             advancedBall.setAdvancedBallType(1);
         }
+
+        // Set appearance and initial movement
         advancedBall.setStroke(Color.BLACK);
-        advancedBall.setDeltaX(0);
-        advancedBall.setDeltaY(1.5);
-        if(!isAdvancedBallCreated)
-            isAdvancedBallCreated = true;
+        advancedBall.setDeltaX(0); // No horizontal movement
+        advancedBall.setDeltaY(1.5); // Set initial downward movement
+
+        // Track creation state
+        if (!isAdvancedBallCreated) {
+            isAdvancedBallCreated = true; // Flag to indicate an advanced ball is now present
+        }
+
+        // Add the advanced ball to the scene
         outerRoot.getChildren().add(advancedBall);
     }
-    private void addLives()
-    {
-        for(Rectangle live :numOfLives)
+    // Method to add a life
+    private void addLives() {
+        // Remove existing life icons from the scene
+        for (Rectangle live : numOfLives) {
             outerRoot.getChildren().remove(live);
+        }
+
+        // Clear the list of life icons
         numOfLives.clear();
+
+        // Increase the lives counter
         lives++;
+
+        // Redraw the lives based on the updated lives count
         drawLives(lives);
     }
-    private void fireBall(){
+    // Function to activate a fire effect for the ball
+    private void fireBall() {
+        // Enable the fire effect for the ball
         ball.setFire(true);
+
+        // Set fire rectangle opacity to 0
         fireRectangle.setOpacity(0);
+
+        // Add the fire rectangle to the scene
         outerRoot.getChildren().add(fireRectangle);
-        if(soundsOfGame.getFireSound().getStatus() == MediaPlayer.Status.PLAYING)
-        {
+
+        // initialize fire Sound
+        if (soundsOfGame.getFireSound().getStatus() == MediaPlayer.Status.PLAYING) {
             soundsOfGame.getFireSound().stop();
             soundsOfGame.getFireSound().seek(soundsOfGame.getFireSound().getStartTime());
         }
-        if(soundFlag)
-            soundsOfGame.getFireSound().play();
-    }
-    private void checkCollisionPaddle(Paddle paddle,Ball advancedBall) {
 
+        // Play fire sound if sound is on
+        if (soundFlag) {
+            soundsOfGame.getFireSound().play();
+        }
+    }
+    // Function to check collision between advanced ball and paddle
+    private void checkCollisionPaddle(Paddle paddle, Ball advancedBall) {
+
+        // Check for intersection between advanced ball and paddle bounding boxes
         if (advancedBall.getBoundsInParent().intersects(paddle.getBoundsInParent())) {
-            if(soundsOfGame.getAdvancedBallSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
+            if (soundsOfGame.getAdvancedBallSound().getStatus() == MediaPlayer.Status.PLAYING) {
                 soundsOfGame.getAdvancedBallSound().stop();
                 soundsOfGame.getAdvancedBallSound().seek(soundsOfGame.getAdvancedBallSound().getStartTime());
             }
-            if(soundFlag)
+
+            if (soundFlag)
                 soundsOfGame.getAdvancedBallSound().play();
+
+            // Remove advanced ball from the scene
             outerRoot.getChildren().remove(advancedBall);
+
+            // Reset advanced ball creation flag
             isAdvancedBallCreated = false;
-            if(lives >= 5){
+
+            // Handle collision based on lives remaining
+            if (lives >= 5) {
+                // High lives: score points, update label, activate fire
                 score += 1000;
                 lblScore.setText("SCORE: " + score);
                 fireBall();
-            }
-            if(lives < 5){
-                switch (advancedBall.getAdvancedBallType())
-                {
+            } else if (lives < 5) {
+                // Low lives: handle collision based on advanced ball type
+                switch (advancedBall.getAdvancedBallType()) {
                     case 0:
+                        // Type 0: add a life
                         addLives();
                         break;
                     case 1:
+                        // Type 1: activate fire
                         fireBall();
                         break;
                 }
             }
         }
-
     }
 
     private void checkCollisionBottomZone1(Ball advancedBall)
@@ -1069,12 +1268,15 @@ public class BrickBreaker extends Application  {
             outerRoot.getChildren().remove(advancedBall);
         }
     }
-    private void pausePage()
-    {
+    // Function to create and display the pause menu
+    private void pausePage() {
+
+        // Create buttons for pause menu
         Button cont = new Button("Continue");
         Button sound = new Button("Sound");
         Button music = new Button("Music");
 
+        // Set button sizes
         cont.setPrefHeight(40);
         cont.setPrefWidth(200);
         menu.setPrefHeight(40);
@@ -1083,66 +1285,82 @@ public class BrickBreaker extends Application  {
         sound.setPrefWidth(150);
         music.setPrefHeight(40);
         music.setPrefWidth(150);
-        Rectangle rectangle = new Rectangle(0,0,outerRoot.getWidth(),outerRoot.getHeight());
-        rectangle.setFill(Color.color(0,0,0,0.5));
+
+        // Create a dark translucent rectangle as background for the pause menu
+        Rectangle rectangle = new Rectangle(0, 0, outerRoot.getWidth(), outerRoot.getHeight());
+        rectangle.setFill(Color.color(0, 0, 0, 0.5)); // 50% transparent black
+
+        // Add the background rectangle to the scene
         outerRoot.getChildren().add(rectangle);
+
+        // Define action for "Continue" button
         cont.setOnAction(e -> {
-            if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
+            // Play button sound if enabled
+            if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                 soundsOfGame.getButtonsSound().stop();
                 soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
             }
-            if(soundFlag)
+            if (soundFlag)
                 soundsOfGame.getButtonsSound().play();
+
+            // Resume the game timeline
             timeline.play();
+
+            // Invert play flag for tracking pause/resume state
             playFlag = !playFlag;
+
+            // Remove background rectangle and pause menu elements from the scene
             outerRoot.getChildren().remove(rectangle);
             outerRoot.getChildren().remove(vboxPause);
-            vboxPause.getChildren().clear();
+            vboxPause.getChildren().clear(); // Clear children from vboxPause for later reuse
         });
+
+        // Create ImageViews for sound and music button icons based on sound/music state
         ImageView soundImg = new ImageView();
         soundImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
         soundImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
+
         ImageView musicImg = new ImageView();
         musicImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
         musicImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
-        if(!soundFlag)
-        {
+
+        if (!soundFlag) {
             soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
-        }
-        else{
+        } else {
             soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
         }
-        if(!musicFlag)
-        {
-            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
 
-        }
-        else{
+        if (!musicFlag) {
+            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+        } else {
             musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
         }
-        sound.setOnAction(e ->{
-            if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
-            {
+        sound.setOnAction(e -> {
+            // Play button sound if enabled
+            if (soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING) {
                 soundsOfGame.getButtonsSound().stop();
                 soundsOfGame.getButtonsSound().seek(soundsOfGame.getButtonsSound().getStartTime());
             }
-            if(!soundFlag)
+            if (!soundFlag)
                 soundsOfGame.getButtonsSound().play();
-            if(soundFlag)
-            {
+
+            // Toggle sound on/off and update button icon
+            if (soundFlag) {
+                // Sound is currently on, mute sound and update icon
                 soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
                 sound.setGraphic(soundImg);
-                soundFlag = !soundFlag;
-            }
-            else{
+                soundFlag = !soundFlag; // Invert sound flag
+            } else {
+                // Sound is currently off, unmute sound and update icon
                 soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
                 sound.setGraphic(soundImg);
-                soundFlag = !soundFlag;
+                soundFlag = !soundFlag; // Invert sound flag
             }
         });
-        sound.setGraphic(soundImg);
 
+        // Set the initial graphic for the sound button based on soundFlag
+        sound.setGraphic(soundImg);
+        // same logic as sound button
         music.setOnAction(e ->{
             if(soundsOfGame.getButtonsSound().getStatus() == MediaPlayer.Status.PLAYING)
             {
