@@ -612,7 +612,11 @@ public class BrickBreaker extends Application  {
                 ball.setLayoutY(paddle.getLayoutY());
 
                 // Remove advanced ball if it exists
-                outerRoot.getChildren().remove(advancedBall);
+                if(isAdvancedBallCreated) {
+                    outerRoot.getChildren().remove(advancedBall);
+                    isAdvancedBallCreated = false;
+                }
+
 
                 // Update paddle position based on mouse position (similar to movePaddle)
                 Bounds bounds = outerRoot.localToScreen(outerRoot.getBoundsInLocal());
@@ -1049,6 +1053,8 @@ public class BrickBreaker extends Application  {
     {
         if(advancedBall.getBoundsInParent().intersects(bottomZone.getBoundsInParent())) {
             outerRoot.getChildren().remove(advancedBall);
+            if(isAdvancedBallCreated)
+                isAdvancedBallCreated = false;
         }
     }
     // Function to create and display the pause menu
