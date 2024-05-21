@@ -183,6 +183,7 @@ public class BrickBreaker extends Application  {
                     bricksCreator.getBricks().clear();
                     numOfLives.clear();
                     vboxPause.getChildren().clear();
+                    ball.setFire(false);
                     playFlag = true;
                     outerRoot.getChildren().clear();
                     // initializing a new game
@@ -544,8 +545,9 @@ public class BrickBreaker extends Application  {
                 numCrashed++;  // Increment number of crashed bricks
 
                 // Create advanced ball on specific intervals (if not already created)
-                if (numCrashed % 5 == 0 && !isAdvancedBallCreated) {
+                if (numCrashed % 5 >= 0 && numCrashed >= 5 && !isAdvancedBallCreated) {
                     createAdvancedBall(brick);
+                    numCrashed = 1;
                 }
 
                 score += 500;
@@ -615,6 +617,7 @@ public class BrickBreaker extends Application  {
                 if(isAdvancedBallCreated) {
                     outerRoot.getChildren().remove(advancedBall);
                     isAdvancedBallCreated = false;
+                    advancedBall = null;
                 }
 
 
@@ -645,6 +648,7 @@ public class BrickBreaker extends Application  {
 
                 // Stop animation timeline
                 timeline.stop();
+                ball.setFire(false);
 
                 // Switch scene to losing scene
                 playingScene.setRoot(loosingScene);
@@ -1027,6 +1031,7 @@ public class BrickBreaker extends Application  {
             // Reset advanced ball creation flag
             isAdvancedBallCreated = false;
 
+
             // Handle collision based on lives remaining
             if (lives >= 5) {
                 // High lives: score points, update label, activate fire
@@ -1053,8 +1058,9 @@ public class BrickBreaker extends Application  {
     {
         if(advancedBall.getBoundsInParent().intersects(bottomZone.getBoundsInParent())) {
             outerRoot.getChildren().remove(advancedBall);
-            if(isAdvancedBallCreated)
+            if(isAdvancedBallCreated){
                 isAdvancedBallCreated = false;
+            }
         }
     }
     // Function to create and display the pause menu
