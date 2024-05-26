@@ -21,10 +21,10 @@ public class Ball extends Circle {
         switch (advancedBallType)
         {
             case 0 :
-                setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\addedLife.png")));
+                setFill(new ImagePattern(new Image("/org/example/brickbreaker/assets/addedLife.png")));
                 break;
             case 1:
-                setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\flame.png")));
+                setFill(new ImagePattern(new Image("/org/example/brickbreaker/assets/flame.png")));
                 break;
         }
     }

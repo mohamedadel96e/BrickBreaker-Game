@@ -9,7 +9,7 @@ public class BackGround extends Pane {
     public BackGround(){
         setPrefWidth(1080);
         setPrefHeight(720);
-        Image playImage = new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\playingBG.png");
+        Image playImage = new Image("/org/example/brickbreaker/assets/playingBG.png");
         setBackground(Background.fill(new ImagePattern(playImage)));
     }
 }

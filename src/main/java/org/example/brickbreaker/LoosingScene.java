@@ -20,7 +20,7 @@ public class LoosingScene extends Pane{
 
     public LoosingScene()
     {
-        ImagePattern win = new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\lose.jpg"));
+        ImagePattern win = new ImagePattern(new Image("/org/example/brickbreaker/assets/lose.jpg"));
         this.setBackground(Background.fill(win));
         hBox.getChildren().addAll(playAgainButton,menuButton);
         hBox.setLayoutY(480);
