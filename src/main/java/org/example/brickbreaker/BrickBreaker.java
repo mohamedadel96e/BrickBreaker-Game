@@ -258,7 +258,7 @@ public class BrickBreaker extends Application  {
         stage.setResizable(false);
 
         // Set the application icon
-        stage.getIcons().add(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\gameIcon.png"));
+        stage.getIcons().add(new Image("/org/example/brickbreaker/assets/gameIcon.png"));
 
         // Store the stage object for later use
         this.stage = stage;
@@ -414,7 +414,7 @@ public class BrickBreaker extends Application  {
         bottomZone.setFill(Color.TRANSPARENT);  // Make it invisible initially
 
         // Set start button appearance
-        ImageView startButtonImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\play.png"));
+        ImageView startButtonImg = new ImageView(new Image("/org/example/brickbreaker/assets/play.png"));
         startButton.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC, 15)); // Set custom font style
         startButton.setStyle("-fx-background-radius: 20; -fx-padding: 10 20;-fx-text-fill: hotpink"); // Set rounded corners, padding, and text color
         startButton.setGraphic(startButtonImg);  // Set the play button image
@@ -455,7 +455,7 @@ public class BrickBreaker extends Application  {
         for (int i = 0; i < lives; i++) {
             numOfLives.add(new Rectangle(40 * i + 10, 10, 30, 30));  // Create a rectangle for each life
             numOfLives.get(i).toBack();  // Send the life rectangle behind other elements
-            numOfLives.get(i).setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\heart.png")));  // Set the life icon (heart image)
+            numOfLives.get(i).setFill(new ImagePattern(new Image("/org/example/brickbreaker/assets/heart.png")));  // Set the life icon (heart image)
             outerRoot.getChildren().add(numOfLives.get(i));  // Add the life Image to the scene
         }
     }
@@ -743,39 +743,39 @@ public class BrickBreaker extends Application  {
         // Create buttons for the intro scene
         Button levels = new Button("Levels");
         Button setting = new Button("Setting");
-        ImageView exitImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\logout.png"));
+        ImageView exitImg = new ImageView(new Image("/org/example/brickbreaker/assets/logout.png"));
         exitImg.fitHeightProperty().bind(setting.prefHeightProperty().multiply(1));
         exitImg.fitWidthProperty().bind(exitImg.fitHeightProperty());
         Button exit = new Button("Exit", exitImg);  // Create exit button with image
 
         // Create image views for settings and sound buttons
-        ImageView settingsImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\setting.png"));
+        ImageView settingsImg = new ImageView(new Image("/org/example/brickbreaker/assets/setting.png"));
         settingsImg.fitHeightProperty().bind(setting.prefHeightProperty().multiply(1));
         settingsImg.fitWidthProperty().bind(settingsImg.fitHeightProperty());
-        ImageView levelsImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\select.png"));
+        ImageView levelsImg = new ImageView(new Image("/org/example/brickbreaker/assets/select.png"));
         levelsImg.fitHeightProperty().bind(levels.prefHeightProperty().multiply(1));
         levelsImg.fitWidthProperty().bind(levelsImg.fitHeightProperty());
 
-        ImageView soundImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+        ImageView soundImg = new ImageView(new Image("/org/example/brickbreaker/assets/SoundIcon.png"));
         soundImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
         soundImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
-        ImageView musicImg = new ImageView(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+        ImageView musicImg = new ImageView(new Image("/org/example/brickbreaker/assets/musicIcon.png"));
         musicImg.fitHeightProperty().bind(sound.prefHeightProperty().divide(1.2));
         musicImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
         // Update sound and music icons based on soundFlag and musicFlag
 
         // Set sound icon based on sound flag
         if (!soundFlag) {
-            soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+            soundImg.setImage(new Image("/org/example/brickbreaker/assets/muteSoundIcon.png"));
         } else {
-            soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+            soundImg.setImage(new Image("/org/example/brickbreaker/assets/SoundIcon.png"));
         }
 
         // Set music icon based on music flag (similar logic as sound)
         if (!musicFlag) {
-            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+            musicImg.setImage(new Image("/org/example/brickbreaker/assets/muteMusicIcon.png"));
         } else {
-            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+            musicImg.setImage(new Image("/org/example/brickbreaker/assets/musicIcon.png"));
         }
 
         // Action handler for sound button - toggles sound and icon
@@ -787,7 +787,7 @@ public class BrickBreaker extends Application  {
             soundFlag = !soundFlag;
 
             // Update sound icon directly in action handler
-            soundImg.setImage(soundFlag ? new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png") : new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+            soundImg.setImage(soundFlag ? new Image("/org/example/brickbreaker/assets/SoundIcon.png") : new Image("/org/example/brickbreaker/assets/muteSoundIcon.png"));
         });
 
         // Set initial sound button icon
@@ -801,12 +801,12 @@ public class BrickBreaker extends Application  {
             if (musicFlag) {
                 // Music is currently on, so pause it
                 soundsOfGame.getMusicSound().pause();
-                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+                musicImg.setImage(new Image("/org/example/brickbreaker/assets/muteMusicIcon.png"));
                 music.setGraphic(musicImg);
             } else {
                 // Music is currently off, so play it
                 soundsOfGame.getMusicSound().play();
-                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+                musicImg.setImage(new Image("/org/example/brickbreaker/assets/musicIcon.png"));
                 music.setGraphic(musicImg);
             }
             musicFlag = !musicFlag;
@@ -894,7 +894,7 @@ public class BrickBreaker extends Application  {
         setting.setFont(Font.font("DejaVu Math TeX Gyre", FontWeight.BOLD, FontPosture.ITALIC, 20));
 
         // Create background image
-        Image introImage = new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\introBG.jpg");
+        Image introImage = new Image("/org/example/brickbreaker/assets/introBG.jpg");
         ImageView introImageView = new ImageView(introImage);
 
         // Bind background image to fit the scene size
@@ -1115,15 +1115,15 @@ public class BrickBreaker extends Application  {
         musicImg.fitWidthProperty().bind(soundImg.fitHeightProperty());
 
         if (!soundFlag) {
-            soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+            soundImg.setImage(new Image("/org/example/brickbreaker/assets/muteSoundIcon.png"));
         } else {
-            soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+            soundImg.setImage(new Image("/org/example/brickbreaker/assets/SoundIcon.png"));
         }
 
         if (!musicFlag) {
-            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+            musicImg.setImage(new Image("/org/example/brickbreaker/assets/muteMusicIcon.png"));
         } else {
-            musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+            musicImg.setImage(new Image("/org/example/brickbreaker/assets/musicIcon.png"));
         }
         sound.setOnAction(e -> {
             // Play button sound if enabled
@@ -1132,12 +1132,12 @@ public class BrickBreaker extends Application  {
             // Toggle sound on/off and update button icon
             if (soundFlag) {
                 // Sound is currently on, mute sound and update icon
-                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteSoundIcon.png"));
+                soundImg.setImage(new Image("/org/example/brickbreaker/assets/muteSoundIcon.png"));
                 sound.setGraphic(soundImg);
                 soundFlag = !soundFlag; // Invert sound flag
             } else {
                 // Sound is currently off, unmute sound and update icon
-                soundImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\SoundIcon.png"));
+                soundImg.setImage(new Image("/org/example/brickbreaker/assets/SoundIcon.png"));
                 sound.setGraphic(soundImg);
                 soundFlag = !soundFlag; // Invert sound flag
             }
@@ -1151,13 +1151,13 @@ public class BrickBreaker extends Application  {
             if(musicFlag)
             {
                 soundsOfGame.getMusicSound().pause();
-                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\muteMusicIcon.png"));
+                musicImg.setImage(new Image("/org/example/brickbreaker/assets/muteMusicIcon.png"));
                 music.setGraphic(musicImg);
                 musicFlag = !musicFlag;
             }
             else{
                 soundsOfGame.getMusicSound().play();
-                musicImg.setImage(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\musicIcon.png"));
+                musicImg.setImage(new Image("/org/example/brickbreaker/assets/musicIcon.png"));
                 music.setGraphic(musicImg);
                 musicFlag = !musicFlag;
             }

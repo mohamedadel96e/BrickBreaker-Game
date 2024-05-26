@@ -37,11 +37,11 @@ public class BricksCreator {
         double width = root.getPrefWidth();  // Get the scene's preferred width
         double height = root.getPrefHeight();  // Get the scene's preferred height
         double space = 15;  // Space between bricks
-        int numOfBricksInRow = 10;  // Number of bricks in a row
-        int numOfBrickInColumn = 5;  // Number of brick columns
+        int numOfBricksInRow = 10;  // Number of bricks in a row --> Level 2 Only
+        int numOfBrickInColumn = 5;  // Number of brick columns --> Level 2 Only
 
         // Calculate individual brick width based on scene size and number of bricks
-        double brickWidth = (root.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow;
+        double brickWidth = (root.getPrefWidth() - numOfBricksInRow * space - 10) / numOfBricksInRow; //--> Level 2 Only
         double brickHeight = brickWidth * 0.5;  // Set brick height to half the width because of the photo i have 2 * 1
 
         // Counter variable for number of brick columns created
@@ -116,6 +116,7 @@ public class BricksCreator {
                         brick = switch (columnCount) {
                             case 4 -> new Brick(j, i, brickWidth, brickHeight, 1);
                             case 3 -> new Brick(j, i, brickWidth, brickHeight, 2);
+
                             default -> new Brick(j, i, brickWidth, brickHeight, random1To3());
                         };
 

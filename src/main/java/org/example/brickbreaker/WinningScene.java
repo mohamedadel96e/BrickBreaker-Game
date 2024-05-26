@@ -27,7 +27,7 @@ public class WinningScene extends Pane {
     private ArrayList<Rectangle> stars = new ArrayList(0);
     public WinningScene()
     {
-        ImagePattern win = new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\winningPhoto.jpg"));
+        ImagePattern win = new ImagePattern(new Image("/org/example/brickbreaker/assets/winningPhoto.jpg"));
         this.setBackground(Background.fill(win));
         hBox.getChildren().addAll(nextLevelButton,playAgainButton,menuButton);
         hBox.setLayoutY(550);
@@ -57,7 +57,7 @@ public class WinningScene extends Pane {
         for(int i = 0; i < numOfStars;i++)
         {
             stars.add(new Rectangle(150 * i + 320,20,100,100));
-            stars.get(i).setFill(new ImagePattern(new Image("file:D:\\2nd Semester\\Programming\\2nd Semester Project\\BrickBreaker\\src\\main\\resources\\org\\example\\brickbreaker\\assets\\StarIcon.png")));
+            stars.get(i).setFill(new ImagePattern(new Image("/org/example/brickbreaker/assets/StarIcon.png")));
             this.getChildren().add(stars.get(i));
         }
 
